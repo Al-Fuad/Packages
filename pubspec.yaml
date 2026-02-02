@@ -5,14 +5,10 @@ homepage: https://github.com/Al-Fuad/Securely
 
 topics:
   - secure
-  - root-detection
-  - jailbreak-detection
-  - debugger-detection
-  - emulator-detection
-  - frida-detection
   - security
-  - rasp
-  - runtime-application-self-protection
+  - root-detection
+  - debugger-detection
+  - frida-detection
 
 environment:
   sdk: ^3.10.7
