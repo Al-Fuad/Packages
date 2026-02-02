@@ -1,4 +1,4 @@
-# Flutter Anti-Reverse Engineering Framework
+# Securely
 
 A runtime security framework for Flutter applications that detects common reverse engineering and tampering environments such as debuggers, rooted devices, emulators, and instrumentation tools (e.g., Frida).
 
