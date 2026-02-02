@@ -103,29 +103,22 @@ bool isRooted = await AntiReverse.isRootDetected();
 bool isEmulator = await AntiReverse.isEmulatorDetected();
 bool isFrida = await AntiReverse.isFridaDetected();
 bool isDebugged = await AntiReverse.isDebuggerDetected();
-🎯 Project Goals
+```
+## 🎯 Project Goals
 Provide runtime protection for Flutter apps
 
 Make reverse engineering and dynamic analysis harder
 
-Offer a developer-friendly API
+Serve as a final-year project / project-based thesis in Cyber Security, Mobile Application Security, Software Engineering
 
-Serve as a final-year project / project-based thesis in
-
-Cyber Security
-
-Mobile Application Security
-
-Software Engineering
-
-⚠️ Limitations
+## ⚠️ Limitations
 Root and Frida detection are not 100% foolproof
 
 Advanced attackers may bypass checks
 
 This framework focuses on raising the attack cost, not absolute prevention
 
-🔮 Future Improvements
+## 🔮 Future Improvements
 Native C/C++ (NDK) based detection
 
 Risk scoring system
