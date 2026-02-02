@@ -12,7 +12,7 @@ class SecurelyPlugin : FlutterPlugin {
 
         val channel = MethodChannel(
             binding.binaryMessenger,
-            "anti_reverse"
+            "securely"
         )
 
         channel.setMethodCallHandler { call, result ->

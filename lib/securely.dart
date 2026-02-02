@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 
 class Securely {
   static const MethodChannel _channel =
-      MethodChannel('anti_reverse');
+      MethodChannel('securely');
 
   static Future<bool> isDebuggerDetected() async {
     final bool result =
