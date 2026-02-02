@@ -15,11 +15,12 @@ import 'package:securely/securely.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('getPlatformVersion test', (WidgetTester tester) async {
-    final Securely plugin = Securely();
-    final String? version = await plugin.getPlatformVersion();
-    // The version string depends on the host platform running the test, so
-    // just assert that some non-empty string is returned.
-    expect(version?.isNotEmpty, true);
+  group('end-to-end test', () {
+    testWidgets('isDebuggerDetected test', (WidgetTester tester) async {
+      final bool result = await Securely.isDebuggerDetected();
+      // Since we can't predict whether a debugger is attached during the test,
+      // we just check that the result is a boolean.
+      expect(result, isA<bool>());
+    });
   });
 }

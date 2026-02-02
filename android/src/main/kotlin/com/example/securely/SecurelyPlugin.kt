@@ -1,38 +1,29 @@
 package com.example.securely
 
+import android.os.Debug
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
 
-/** SecurelyPlugin */
-class SecurelyPlugin :
-    FlutterPlugin,
-    MethodCallHandler {
-    // The MethodChannel that will the communication between Flutter and native Android
-    //
-    // This local reference serves to register the plugin with the Flutter Engine and unregister it
-    // when the Flutter Engine is detached from the Activity
-    private lateinit var channel: MethodChannel
+class SecurelyPlugin : FlutterPlugin {
 
-    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "securely")
-        channel.setMethodCallHandler(this)
-    }
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
 
-    override fun onMethodCall(
-        call: MethodCall,
-        result: Result
-    ) {
-        if (call.method == "getPlatformVersion") {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-        } else {
-            result.notImplemented()
+        val channel = MethodChannel(
+            binding.binaryMessenger,
+            "anti_reverse"
+        )
+
+        channel.setMethodCallHandler { call, result ->
+            when (call.method) {
+
+                "isDebuggerDetected" -> {
+                    result.success(Debug.isDebuggerConnected())
+                }
+
+                else -> result.notImplemented()
+            }
         }
     }
 
-    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        channel.setMethodCallHandler(null)
-    }
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
 }

@@ -1,8 +1,14 @@
+library;
 
-import 'securely_platform_interface.dart';
+import 'package:flutter/services.dart';
 
 class Securely {
-  Future<String?> getPlatformVersion() {
-    return SecurelyPlatform.instance.getPlatformVersion();
+  static const MethodChannel _channel =
+      MethodChannel('anti_reverse');
+
+  static Future<bool> isDebuggerDetected() async {
+    final bool result =
+        await _channel.invokeMethod('isDebuggerDetected');
+    return result;
   }
 }
