@@ -11,9 +11,16 @@ class Securely {
         await _channel.invokeMethod('isDebuggerDetected');
     return result;
   }
+
   static Future<bool> isRootDetected() async {
     final bool result =
         await _channel.invokeMethod('isRootDetected');
+    return result;
+  }
+
+  static Future<bool> isEmulatorDetected() async {
+    final bool result =
+        await _channel.invokeMethod('isEmulatorDetected');
     return result;
   }
 }

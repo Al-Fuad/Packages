@@ -52,6 +52,25 @@ class MyApp extends StatelessWidget {
               },
               child: const Text('Check Root Status'),
             ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                bool emulatorDetected = await Securely.isEmulatorDetected();
+                String message = emulatorDetected
+                    ? '❌ Emulator is detected!'
+                    : '✅ No emulator detected.';
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    content: Container(
+                      padding: EdgeInsets.all(10),
+                      child: Text(message),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Check Emulator Status'),
+            ),
           ],
         ),
       ),
