@@ -30,12 +30,68 @@ class SecurelyPlugin : FlutterPlugin {
                     result.success(isEmulator())
                 }
 
+                "isFridaDetected" -> {
+                    result.success(isFridaDetected())
+                }
+
                 else -> result.notImplemented()
             }
         }
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
+
+    // ================= FRIDA DETECTION =================
+
+    private fun isFridaDetected(): Boolean {
+        return checkFridaServerProcess() ||
+            checkFridaLibraries() ||
+            checkProcMapsForFrida()
+    }
+
+    private fun checkFridaServerProcess(): Boolean {
+        return try {
+            val process = Runtime.getRuntime().exec("ps")
+            val reader = process.inputStream.bufferedReader()
+            reader.readLines().any { it.contains("frida", ignoreCase = true) }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun checkFridaLibraries(): Boolean {
+        val suspiciousLibs = listOf(
+            "frida",
+            "gum-js-loop",
+            "gadget"
+        )
+
+        return try {
+            val process = Runtime.getRuntime().exec("cat /proc/self/maps")
+            val reader = process.inputStream.bufferedReader()
+            reader.readLines().any { line ->
+                suspiciousLibs.any { lib ->
+                    line.contains(lib, ignoreCase = true)
+                }
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun checkProcMapsForFrida(): Boolean {
+        return try {
+            val maps = File("/proc/self/maps")
+            if (!maps.exists()) return false
+
+            maps.readLines().any {
+                it.contains("frida", ignoreCase = true)
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     
     // ================= EMULATOR DETECTION =================
 

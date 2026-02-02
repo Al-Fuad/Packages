@@ -23,4 +23,10 @@ class Securely {
         await _channel.invokeMethod('isEmulatorDetected');
     return result;
   }
+
+  static Future<bool> isFridaDetected() async {
+    final bool result =
+        await _channel.invokeMethod('isFridaDetected');
+    return result;
+  }
 }

@@ -71,6 +71,25 @@ class MyApp extends StatelessWidget {
               },
               child: const Text('Check Emulator Status'),
             ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                bool fridaDetected = await Securely.isFridaDetected();
+                String message = fridaDetected
+                    ? '❌ Frida is detected!'
+                    : '✅ No Frida detected.';
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    content: Container(
+                      padding: EdgeInsets.all(10),
+                      child: Text(message),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Check Frida Status'),
+            ),
           ],
         ),
       ),
