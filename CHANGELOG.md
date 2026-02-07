@@ -7,6 +7,13 @@ and this project follows **Semantic Versioning**.
 
 ---
 
+## [0.0.2] - Dart Documentation
+
+### Added
+- **Full API Documentation**: Added dartdoc comments to 100% of the public API to improve developer experience and pub.dev score.
+
+---
+
 ## [0.0.1] - Core Runtime Detection Layer
 
 ### Added
