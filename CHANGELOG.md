@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on **Keep a Changelog**,  
 and this project follows **Semantic Versioning**.
 
+## [0.0.3] - Change Organization
+
+### Changed
+- **Organization Rename**: Updated package name and organization identifiers to `me.alfuad`.
+
 ---
 
 ## [0.0.2] - Dart Documentation
