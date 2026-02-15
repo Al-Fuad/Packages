@@ -1,4 +1,4 @@
-package com.example.securely
+package me.alfuad.securely
 
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel

@@ -1,4 +1,4 @@
-package com.example.securely
+package me.alfuad.securely
 
 import android.os.Debug
 import java.io.File

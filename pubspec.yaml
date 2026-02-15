@@ -23,12 +23,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  rename: ^3.1.0
 
 flutter:
   plugin:
     platforms:
       android:
-        package: com.example.securely
+        package: me.alfuad.securely
         pluginClass: SecurelyPlugin
       ios:
         pluginClass: SecurelyPlugin
