@@ -74,6 +74,9 @@ and this project follows **Semantic Versioning**.
 - **Simple Runtime Response**
   - Immediate action handling on threat detection
   - Configurable responses (log, warn, restrict, terminate)
+- **Secure Storage**
+  - Encrypted local storage for sensitive data
+  - Key management and secure access patterns
 - Advanced Frida & Hook Detection
 - Memory Tampering Detection
 - Security Policy Engine
