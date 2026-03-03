@@ -24,4 +24,23 @@ internal class SecurelyPluginTest {
 
         Mockito.verify(mockResult).success("Android " + android.os.Build.VERSION.RELEASE)
     }
+
+    @Test
+    fun onMethodCall_securityChecks_returnBoolean() {
+        val plugin = SecurelyPlugin()
+        val methods = listOf(
+            "isDebuggerDetected",
+            "isRootDetected",
+            "isEmulatorDetected",
+            "isFridaDetected"
+        )
+
+        for (method in methods) {
+            val call = MethodCall(method, null)
+            val mockResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
+            plugin.onMethodCall(call, mockResult)
+            // plugin returns a Boolean; verify that success was invoked with any Boolean value
+            Mockito.verify(mockResult).success(Mockito.any(Boolean::class.java))
+        }
+    }
 }

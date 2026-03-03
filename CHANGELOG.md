@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on **Keep a Changelog**,  
 and this project follows **Semantic Versioning**.
 
+
+
+## [0.1.0] - Cross-Platform Parity
+
+### Added
+- **Desktop Support**: Added detection capabilities for Windows, macOS, and Linux.
+  - Debugger detection via native system APIs.
+  - Virtualization/Hypervisor detection for desktop environments.
+  - Privilege detection (Root/Administrator check).
+
+---
+
 ## [0.0.4] - Fix Path
 
 ### Fixed

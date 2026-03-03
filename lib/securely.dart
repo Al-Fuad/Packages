@@ -1,8 +1,18 @@
-/// A library for performing security-related environment checks on the device.
+/// A library for performing security-related environment checks on the
+/// host platform.
 ///
-/// This library provides tools to detect common security risks such as
-/// rooted devices, debuggers, emulators, and instrumentation tools.
-library securely;
+/// The APIs are available on Android, iOS, macOS, Linux, and Windows and
+/// dispatch to native code via a [MethodChannel].
+///
+/// Detection methods include:
+///  * Debugger attachment
+///  * Root/administrator privileges (or jailbroken devices on mobile)
+///  * Emulator or virtualized environments
+///  * Presence of instrumentation frameworks like Frida
+///
+/// Keep in mind that these checks raise the bar for attackers but are not
+/// foolproof; advanced adversaries may bypass them.
+library;
 
 import 'package:flutter/services.dart';
 
@@ -18,8 +28,7 @@ import 'package:flutter/services.dart';
 /// * [isEmulatorDetected]
 /// * [isFridaDetected]
 class Securely {
-  static const MethodChannel _channel =
-      MethodChannel('securely');
+  static const MethodChannel _channel = MethodChannel('securely');
 
   /// Detects whether a debugger is currently attached to the application.
   ///
@@ -31,8 +40,7 @@ class Securely {
   /// * [isEmulatorDetected]
   /// * [isFridaDetected]
   static Future<bool> isDebuggerDetected() async {
-    final bool result =
-        await _channel.invokeMethod('isDebuggerDetected');
+    final bool result = await _channel.invokeMethod('isDebuggerDetected');
     return result;
   }
 
@@ -46,8 +54,7 @@ class Securely {
   /// * [isEmulatorDetected]
   /// * [isFridaDetected]
   static Future<bool> isRootDetected() async {
-    final bool result =
-        await _channel.invokeMethod('isRootDetected');
+    final bool result = await _channel.invokeMethod('isRootDetected');
     return result;
   }
 
@@ -61,8 +68,7 @@ class Securely {
   /// * [isRootDetected]
   /// * [isFridaDetected]
   static Future<bool> isEmulatorDetected() async {
-    final bool result =
-        await _channel.invokeMethod('isEmulatorDetected');
+    final bool result = await _channel.invokeMethod('isEmulatorDetected');
     return result;
   }
 
@@ -76,8 +82,7 @@ class Securely {
   /// * [isRootDetected]
   /// * [isEmulatorDetected]
   static Future<bool> isFridaDetected() async {
-    final bool result =
-        await _channel.invokeMethod('isFridaDetected');
+    final bool result = await _channel.invokeMethod('isFridaDetected');
     return result;
   }
 }

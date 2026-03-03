@@ -12,25 +12,19 @@ This project focuses on **runtime detection**, not just static obfuscation, maki
 
 - **Debugger Detection**
   - Detects if the app is being debugged at runtime.
-  - Uses native Android APIs.
+  - Uses native APIs per platform (Android, iOS, macOS, Linux, Windows).
 
-- **Root Detection**
-  - Detects rooted devices using:
-    - `su` binary checks
-    - Known root file paths
-    - Dangerous system properties
+- **Root / Privilege Detection**
+  - On mobile: identifies rooted/jailbroken devices.
+  - On desktop/server platforms: checks for elevated (root/administrator) privileges.
 
-- **Emulator Detection**
-  - Detects Android emulators using:
-    - Build fingerprints
-    - QEMU indicators
-    - Generic hardware/device properties
+- **Emulator/VM Detection**
+  - Recognizes emulator conditions on Android and virtualized environments on desktop (hypervisor bit).
 
 - **Frida (Basic) Detection**
-  - Detects common Frida indicators:
-    - `frida-server` process
-    - Suspicious library names
-    - Known Frida strings
+  - Detects common Frida indicators on all supported platforms:
+    - environment variables such as `FRIDA` or `DYLD_INSERT_LIBRARIES`
+    - loaded library names containing `frida`, `gum`, etc.
 
 ---
 

@@ -1,6 +1,6 @@
 name: securely
 description: "Securely is a flutter plugin for Runtime Application Self-Protection (RASP)."
-version: 0.0.4
+version: 0.1.0
 homepage: https://github.com/Al-Fuad/Securely
 
 topics:
@@ -31,5 +31,11 @@ flutter:
         package: me.alfuad.securely
         pluginClass: SecurelyPlugin
       ios:
+        pluginClass: SecurelyPlugin
+      macos:
+        pluginClass: SecurelyPlugin
+      linux:
+        pluginClass: SecurelyPlugin
+      windows:
         pluginClass: SecurelyPlugin
 

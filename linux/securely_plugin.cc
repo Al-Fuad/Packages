@@ -26,8 +26,22 @@ static void securely_plugin_handle_method_call(
 
   const gchar* method = fl_method_call_get_name(method_call);
 
-  if (strcmp(method, "getPlatformVersion") == 0) {
-    response = get_platform_version();
+  if (strcmp(method, "isDebuggerDetected") == 0) {
+    bool detected = is_debugger_detected();
+    g_autoptr(FlValue) val = fl_value_new_bool(detected);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(val));
+  } else if (strcmp(method, "isRootDetected") == 0) {
+    bool detected = is_root_detected();
+    g_autoptr(FlValue) val = fl_value_new_bool(detected);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(val));
+  } else if (strcmp(method, "isEmulatorDetected") == 0) {
+    bool detected = is_emulator_detected();
+    g_autoptr(FlValue) val = fl_value_new_bool(detected);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(val));
+  } else if (strcmp(method, "isFridaDetected") == 0) {
+    bool detected = is_frida_detected();
+    g_autoptr(FlValue) val = fl_value_new_bool(detected);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(val));
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
   }
@@ -35,13 +49,72 @@ static void securely_plugin_handle_method_call(
   fl_method_call_respond(method_call, response, nullptr);
 }
 
-FlMethodResponse* get_platform_version() {
-  struct utsname uname_data = {};
-  uname(&uname_data);
-  g_autofree gchar *version = g_strdup_printf("Linux %s", uname_data.version);
-  g_autoptr(FlValue) result = fl_value_new_string(version);
-  return FL_METHOD_RESPONSE(fl_method_success_response_new(result));
+// ------------------- SECURITY DETECTION HELPERS -------------------
+
+static bool is_debugger_detected() {
+  FILE* f = fopen("/proc/self/status", "r");
+  if (!f) return false;
+  char line[256];
+  while (fgets(line, sizeof(line), f)) {
+    if (strncmp(line, "TracerPid:", 10) == 0) {
+      int tracer = atoi(line + 10);
+      fclose(f);
+      return tracer != 0;
+    }
+  }
+  fclose(f);
+  return false;
 }
+
+static bool is_root_detected() {
+  return geteuid() == 0;
+}
+
+static bool is_emulator_detected() {
+  // look for hypervisor bit in cpuinfo
+  FILE* f = fopen("/proc/cpuinfo", "r");
+  if (!f) return false;
+  char buf[1024];
+  bool found = false;
+  while (fgets(buf, sizeof(buf), f)) {
+    if (strstr(buf, "hypervisor") != NULL) {
+      found = true;
+      break;
+    }
+  }
+  fclose(f);
+  return found;
+}
+
+static bool check_frida_env() {
+  const char* vars[] = {"FRIDA", "FRIDA_SERVER", "DYLD_INSERT_LIBRARIES"};
+  for (size_t i = 0; i < sizeof(vars)/sizeof(vars[0]); i++) {
+    if (getenv(vars[i]) != NULL) {
+      return true;
+    }
+  }
+  return false;
+}
+
+static bool check_frida_maps() {
+  bool found = false;
+  FILE* f = fopen("/proc/self/maps", "r");
+  if (!f) return false;
+  char line[1024];
+  while (fgets(line, sizeof(line), f)) {
+    if (strstr(line, "frida") != NULL) {
+      found = true;
+      break;
+    }
+  }
+  fclose(f);
+  return found;
+}
+
+static bool is_frida_detected() {
+  return check_frida_env() || check_frida_maps();
+}
+
 
 static void securely_plugin_dispose(GObject* object) {
   G_OBJECT_CLASS(securely_plugin_parent_class)->dispose(object);

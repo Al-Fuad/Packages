@@ -6,5 +6,8 @@
 // https://github.com/flutter/flutter/issues/88724 for current limitations
 // in the unit-testable API.
 
-// Handles the getPlatformVersion method call.
-FlMethodResponse *get_platform_version();
+// Security helper functions (unit tests may call these directly).
+bool is_debugger_detected();
+bool is_root_detected();
+bool is_emulator_detected();
+bool is_frida_detected();
