@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on **Keep a Changelog**,  
 and this project follows **Semantic Versioning**.
 
+## [0.2.1] - Swift Package Manager Support
+
+### Added
+- **Swift Package Manager Support**: Added support for integrating the native iOS/macOS plugin
+
+---
+
 ## [0.2.0] - Web Support and Cross-Platform Parity
 
 ### Added
