@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on **Keep a Changelog**,  
 and this project follows **Semantic Versioning**.
 
+## [0.0.4] - Fix Path
+
+### Fixed
+- **Fix Path**: Resolved incorrect file pathing issues within android project.
+
 ## [0.0.3] - Change Organization
 
 ### Changed
