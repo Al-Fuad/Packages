@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:securely/securely.dart';
@@ -6,26 +7,31 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    // intercept all method calls with a simple boolean response or a string
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(const MethodChannel('securely'), (
-          MethodCall call,
-        ) async {
-          switch (call.method) {
-            case 'isDebuggerDetected':
-            case 'isRootDetected':
-            case 'isEmulatorDetected':
-            case 'isFridaDetected':
-              return false;
-            default:
-              throw MissingPluginException();
-          }
-        });
+    // on non-web platforms we mock the channel so the tests do not require
+    // the native implementations. web tests will run the real plugin.
+    if (!kIsWeb) {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(const MethodChannel('securely'), (
+            MethodCall call,
+          ) async {
+            switch (call.method) {
+              case 'isDebuggerDetected':
+              case 'isRootDetected':
+              case 'isEmulatorDetected':
+              case 'isFridaDetected':
+                return false;
+              default:
+                throw MissingPluginException();
+            }
+          });
+    }
   });
 
   tearDown(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(const MethodChannel('securely'), null);
+    if (!kIsWeb) {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(const MethodChannel('securely'), null);
+    }
   });
 
   group('Securely', () {

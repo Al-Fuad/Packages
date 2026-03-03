@@ -1,7 +1,7 @@
 # Securely
 
 **Securely** is a Flutter plugin that provides a lightweight runtime security framework for
-applications running on Android, iOS, macOS, Linux, and Windows.  Its goal is to help
+applications running on Android, iOS, macOS, Linux, Windows and web. Its goal is to help
 developers detect common hostile environments such as attached debuggers, rooted or
 elevated processes, emulators/virtual machines and instrumentation tools like Frida.
 
@@ -16,7 +16,7 @@ attackers.
 
 1. **Runtime threat detection** – no build‑time obfuscation, only live checks.
 2. **Cross‑platform support** – consistent API across mobile and desktop.
-3. **Modular native implementations** – each platform implements its own heuristics.
+3. **Modular platform-specific implementations** – each platform (including a minimal web stub) implements its own heuristics.
 4. **Tests and example app** – demonstrating usage and verifying channel behavior.
 
 ---
@@ -96,6 +96,7 @@ securely/
 ├── macos/               # macOS plugin code
 ├── linux/               # Linux plugin code
 ├── windows/             # Windows plugin code
+├── lib/securely_web.dart # Web plugin implementation
 ├── lib/                 # Dart API (securely.dart)
 ├── example/             # Example Flutter application
 ├── test/                # Dart unit tests

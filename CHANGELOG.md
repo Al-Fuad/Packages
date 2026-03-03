@@ -5,7 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on **Keep a Changelog**,  
 and this project follows **Semantic Versioning**.
 
+## [0.2.0] - Web Support and Cross-Platform Parity
 
+### Added
+- **Web Support**: Added a dummy web implementation that returns `false` for all checks.
+ 
+---
 
 ## [0.1.0] - Cross-Platform Parity
 
