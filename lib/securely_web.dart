@@ -1,5 +1,3 @@
-// ignore_for_file: uri_does_not_exist, undefined_class, undefined_method
-
 // Web implementation of the Securely plugin.
 
 // This file is only imported on web builds thanks to the entry in
@@ -8,7 +6,6 @@
 // to the same threats as native platforms.
 
 import 'dart:async';
-import 'dart:html' as html; // available only on web
 
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -44,7 +41,7 @@ class SecurelyWeb {
   bool _isDebuggerDetected() {
     // In a browser context there's not a reliable, portable way to detect
     // the developer tools. We simply return false. Future work could
-    // examine `html.window.navigator.userAgent` or check for `console` hooks.
+    // examine `web.window.navigator.userAgent` or check for `console` hooks.
     return false;
   }
 
