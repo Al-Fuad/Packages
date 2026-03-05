@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on **Keep a Changelog**,  
 and this project follows **Semantic Versioning**.
 
+## [0.2.3] - Change homepage URL to repo URL
+
+### Changed
+- **Homepage URL**: homepage URL in `pubspec.yaml` is now repository URL.
+
+---
+
 ## [0.2.2] - Fix Example Tests and change repo path
 
 ### Fixed
