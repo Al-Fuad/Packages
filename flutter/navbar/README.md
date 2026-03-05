@@ -1,39 +1,59 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# navbar
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+A customizable, easy-to-use navigation bar package for Flutter applications.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+*   🚀 **Lightweight & Fast**: Minimal overhead for smooth transitions.
+*   🎨 **Highly Customizable**: Adjust colors, icons, and labels to match your brand.
+*   📱 **Responsive**: Works seamlessly across different screen sizes.
+*   🛠 **Simple API**: Get up and running with just a few lines of code.
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add `navbar` to your `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  navbar: ^0.0.1
+```
+
+Then, run:
+
+```bash
+flutter pub get
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Import the package in your Dart code:
 
 ```dart
-const like = 'sample';
+import 'package:navbar/navbar.dart';
+```
+
+Example implementation:
+
+```dart
+// Add a basic usage example here once the API is finalized
 ```
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+### Contributing
+
+Contributions are welcome! If you find a bug or have a feature request, please open an issue on the GitHub repository.
+
+### License
+
+This project is licensed under the BSD 3-Clause License - see the [LICENSE](LICENSE.md) file for details.
+
+---
+
+Maintained by **S M Al Fuad Nur**.
+
+## Roadmap
+
+- [ ] Add animation support.
+- [ ] Implement badge notifications on icons.
+- [ ] Add more pre-defined themes.
