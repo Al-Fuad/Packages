@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on **Keep a Changelog**,  
 and this project follows **Semantic Versioning**.
 
+## [0.2.2] - Fix Example Tests and change repo path
+
+### Fixed
+- **Example Tests**: Updated example integration and widget tests to import from the correct package path.
+
+### Changed
+- **Package Path**: Update repository path https://github.com/Al-Fuad/Securely to https://github.com/Al-Fuad/Packages/tree/main/flutter/securely.
+
+---
+
 ## [0.2.1] - Swift Package Manager Support
 
 ### Added
