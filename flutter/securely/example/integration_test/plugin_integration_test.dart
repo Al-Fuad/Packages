@@ -6,7 +6,6 @@
 // For more information about Flutter integration tests, please see
 // https://flutter.dev/to/integration-testing
 
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -18,9 +17,21 @@ void main() {
   group('end-to-end test', () {
     testWidgets('isDebuggerDetected test', (WidgetTester tester) async {
       final bool result = await Securely.isDebuggerDetected();
-      // Since we can't predict whether a debugger is attached during the test,
-      // we just check that the result is a boolean.
       expect(result, isA<bool>());
+    });
+
+    testWidgets('isDebuggerDetected returns boolean', (WidgetTester tester) async {
+      final result = await Securely.isDebuggerDetected();
+      expect(result, isNotNull);
+      expect(result, isA<bool>());
+    });
+
+    testWidgets('multiple isDebuggerDetected calls', (WidgetTester tester) async {
+      final result1 = await Securely.isDebuggerDetected();
+      final result2 = await Securely.isDebuggerDetected();
+      expect(result1, isA<bool>());
+      expect(result2, isA<bool>());
+      expect(result1, equals(result2));
     });
   });
 }
