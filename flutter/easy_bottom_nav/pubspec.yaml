@@ -1,7 +1,7 @@
-name: navbar
-description: "A customizable and responsive navigation bar for Flutter applications."
+name: easy_bottom_nav
+description: "A customizable and responsive bottom navigation bar for Flutter applications."
 version: 0.0.1
-repository: https://github.com/Al-Fuad/Packages/flutter/navbar
+repository: https://github.com/Al-Fuad/Packages/tree/main/flutter/easy_bottom_nav
 
 topics: 
   - bottom-nav

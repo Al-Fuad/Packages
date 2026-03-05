@@ -1,8 +1,8 @@
 /// A customizable and responsive navigation bar for Flutter applications.
-library navbar;
+library easy_bottom_nav;
 
-/// Exporting the main Navbar class for external use.
-class Navbar {
+/// Exporting the main EasyBottomNav class for external use.
+class EasyBottomNav {
 
   /// [items] - A list of strings representing the navigation items.
   /// [currentIndex] - The index of the currently selected item.
@@ -11,8 +11,8 @@ class Navbar {
   final int currentIndex;
   final Function(int) onTap;
 
-  /// Creates a new instance of the Navbar class.
-  Navbar({
+  /// Creates a new instance of the EasyBottomNav class.
+  EasyBottomNav({
     required this.items,
     required this.currentIndex,
     required this.onTap,
