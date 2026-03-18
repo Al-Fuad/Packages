@@ -1,126 +1,69 @@
 # easy_bottom_nav
 
-A very small, customizable and responsive navigation helper for Flutter.
+A lightweight and customizable bottom navigation widget for Flutter.
 
-This package exposes a simple `EasyBottomNav` class that maintains a list
-of labels and reports taps back to the host widget. It is meant to serve as
-a lightweight building block for applications that need a bottom
-navigation bar without bringing in a heavy widget library.
+## Features
 
----
+- Simple API focused on `items`, `currentIndex`, and `onTap`
+- Built on top of Flutter's `BottomNavigationBar`
+- Supports icon, active icon, label, tooltip, and style customization
 
-## 🧩 Features
-
-- Compact API with only three properties (`items`, `currentIndex`, `onTap`).
-- No dependencies outside of Flutter itself.
-- Easy to integrate into any `StatefulWidget`.
-
----
-
-## 🚀 Getting Started
-
-### Installation
-
-Add the package to your `pubspec.yaml`:
+## Installation
 
 ```yaml
 dependencies:
-  easy_bottom_nav:
-    path: ../  # or the hosted version when published
+  easy_bottom_nav: ^0.0.1
 ```
 
-Then run:
-
-```bash
-flutter pub get
-```
-
-> 📌 **Note:** The example directory contains a minimal app demonstrating
-> how to wire up the navigation class.
-
-### Basic Usage
-
-Import the library and create an instance of `EasyBottomNav` from within your
-widget tree. The widget itself is not provided – this package merely
-defines the data structure and behavior, so you can couple it with any
-UI of your choosing (e.g. a `BottomNavigationBar`, custom layout, etc.).
+## Usage
 
 ```dart
 import 'package:easy_bottom_nav/easy_bottom_nav.dart';
+import 'package:flutter/material.dart';
 
-class MyHomePage extends StatefulWidget {
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _currentIndex = 0;
-
-  late EasyBottomNav _nav;
-
-  @override
-  void initState() {
-    super.initState();
-    _nav = EasyBottomNav(
-      items: ['Home', 'Search', 'Profile'],
-      currentIndex: _currentIndex,
-      onTap: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
-    );
-  }
+class _HomePageState extends State<HomePage> {
+  int _index = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text('Selected: \\${_nav.items[_nav.currentIndex]}')),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _nav.currentIndex,
-        items: _nav.items
-            .map((label) => BottomNavigationBarItem(
-                  icon: Icon(Icons.circle),
-                  label: label,
-                ))
-            .toList(),
-        onTap: _nav.handleTap,
+      body: Center(child: Text('Current tab: $_index')),
+      bottomNavigationBar: EasyBottomNav(
+        currentIndex: _index,
+        onTap: (value) => setState(() => _index = value),
+        items: const [
+          EasyBottomNavItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          EasyBottomNavItem(icon: Icon(Icons.search_outlined), label: 'Search'),
+          EasyBottomNavItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+        ],
       ),
     );
   }
 }
 ```
 
-### Running the Example
+## Example
 
-Navigate to the example folder and launch the app with Flutter:
+A full runnable demo is available in `example/`:
 
 ```bash
 cd example
 flutter run
 ```
 
----
-
-## 🧪 Testing
-
-The `test/` directory currently contains the skeleton for unit tests. You
-can add your own validations and run them with:
+## Testing
 
 ```bash
 flutter test
 ```
 
----
+## License
 
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull
-requests. Please follow the [Dart code style](https://dart.dev/guides/language/effective-dart/style)
-and include tests for any new functionality.
-
----
-
-## 📄 License
-
-This project is licensed under the terms of the [BSD](LICENSE) license.
+BSD 3-Clause License. See [LICENSE](LICENSE).
