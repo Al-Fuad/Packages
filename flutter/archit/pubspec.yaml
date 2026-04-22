@@ -1,6 +1,6 @@
 name: archit
 description: A powerful CLI tool to scaffold Flutter projects with clean architecture.
-version: 0.0.2
+version: 0.0.3
 repository: https://github.com/Al-Fuad/Packages/tree/main/flutter/archit
 
 topics: 
