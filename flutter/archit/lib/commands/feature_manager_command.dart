@@ -4,7 +4,7 @@ import 'package:archit/models/project_config.dart';
 import 'package:archit/utils/console.dart';
 import 'package:archit/utils/fs_utils.dart';
 import 'package:archit/generators/feature_generator.dart';
-import '../generators/usecase_generator.dart';
+import 'package:archit/generators/usecase_generator.dart';
 
 /// Command for managing features in a Flutter project.
 ///
