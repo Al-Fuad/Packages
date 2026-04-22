@@ -51,8 +51,8 @@ archit
 
 ```
 ╔══════════════════════════════════════════════════╗
-║         🔨  Archit CLI  v1.0.0            ║
-║     Clean Architecture Scaffold Generator         ║
+║             🔨  Archit CLI  v0.0.2               ║
+║     Clean Architecture Scaffold Generator        ║
 ╚══════════════════════════════════════════════════╝
 
 ➤  Enter project name: my_shop_app
