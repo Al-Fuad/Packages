@@ -1,10 +1,10 @@
 {
   "roots": [
-    "archon"
+    "archit"
   ],
   "packages": [
     {
-      "name": "archon",
+      "name": "archit",
       "version": "0.0.1",
       "dependencies": [
         "args",

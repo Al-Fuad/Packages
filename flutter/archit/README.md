@@ -1,4 +1,4 @@
-# 🔨 Archon CLI
+# 🔨 Archit CLI
 
 A powerful command-line tool that scaffolds Flutter projects following **Clean Architecture** principles — with automatic feature generation, usecase wiring, routing, and dependency injection.
 
@@ -20,11 +20,11 @@ dart --version
 
 ```bash
 # Activate globally from pub.dev
-dart pub global activate archon
+dart pub global activate archit
 
 # Add Dart's pub cache bin to your PATH (add to ~/.bashrc or ~/.zshrc)
 export PATH="$PATH:$HOME/.pub-cache/bin"
-source ~/.bashrc
+source ~/.zshrc
 ```
 
 ---
@@ -34,16 +34,16 @@ source ~/.bashrc
 ### Create a new Flutter project
 ```bash
 cd ~/projects
-archon
+archit
 ```
 
 ### Use inside an existing Flutter project
 ```bash
 cd my_flutter_app
-archon
+archit
 ```
 
-> When run inside an existing Flutter project root, Archon skips project creation and goes straight to the Feature Manager.
+> When run inside an existing Flutter project root, Archit skips project creation and goes straight to the Feature Manager.
 
 ---
 
@@ -51,7 +51,7 @@ archon
 
 ```
 ╔══════════════════════════════════════════════════╗
-║         🔨  Archon CLI  v1.0.0            ║
+║         🔨  Archit CLI  v1.0.0            ║
 ║     Clean Architecture Scaffold Generator         ║
 ╚══════════════════════════════════════════════════╝
 
@@ -218,8 +218,8 @@ When you add a **usecase**:
 ## 🛠️ Run from Source (without global install)
 
 ```bash
-cd archon
-dart run bin/archon.dart
+cd archit
+dart run bin/archit.dart
 ```
 
 ---
@@ -229,4 +229,4 @@ dart run bin/archon.dart
 - [ ] Local datasource generation
 - [ ] Unit test file scaffolding
 - [ ] Model field definition during generation
-- [ ] `archon remove feature <name>` command
+- [ ] `archit remove feature <name>` command

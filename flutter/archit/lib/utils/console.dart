@@ -22,13 +22,13 @@ class Console {
   static const String bgBlue = '\x1B[44m';
   static const String bgGreen = '\x1B[42m';
 
-  /// Prints the Archon CLI banner to the console.
+  /// Prints the Archit CLI banner to the console.
   static void printBanner() {
     print('');
     print(
         '$cyan$bold╔══════════════════════════════════════════════════╗$reset');
     print(
-        '$cyan$bold║            🔨  Archon CLI  v1.0.0                ║$reset');
+        '$cyan$bold║            🔨  Archit CLI  v0.0.1                ║$reset');
     print(
         '$cyan$bold║     Clean Architecture Scaffold Generator        ║$reset');
     print(

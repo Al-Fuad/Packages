@@ -6,7 +6,7 @@ import '../models/project_config.dart';
 import 'create_project_command.dart';
 import 'feature_manager_command.dart';
 
-/// The main CLI entry point for Archon.
+/// The main CLI entry point for Archit.
 ///
 /// This class handles the command-line interface flow, including
 /// detecting Flutter projects and routing to the appropriate commands.

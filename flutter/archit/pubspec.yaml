@@ -1,6 +1,14 @@
-name: archon
+name: archit
 description: A powerful CLI tool to scaffold Flutter projects with clean architecture.
 version: 0.0.1
+repository: https://github.com/Al-Fuad/Packages/tree/main/flutter/archit
+
+topics: 
+  - cli
+  - flutter
+  - clean-architecture
+  - scaffold
+  - generator
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -12,3 +20,12 @@ dependencies:
 
 dev_dependencies:
   lints: ^3.0.0
+
+
+platforms:
+  android:
+  ios:
+  web:
+  macos:
+  windows:
+  linux:
