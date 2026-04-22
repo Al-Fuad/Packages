@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
-import '../models/project_config.dart';
-import '../utils/console.dart';
-import '../utils/fs_utils.dart';
-import '../generators/pubspec_generator.dart';
-import '../generators/core_generator.dart';
-import '../generators/app_generator.dart';
+import 'package:archit/models/project_config.dart';
+import 'package:archit/utils/console.dart';
+import 'package:archit/utils/fs_utils.dart';
+import 'package:archit/generators/pubspec_generator.dart';
+import 'package:archit/generators/core_generator.dart';
+import 'package:archit/generators/app_generator.dart';
 
 /// Command for creating new Flutter projects.
 ///

@@ -1,6 +1,6 @@
 import 'package:path/path.dart' as p;
-import '../utils/fs_utils.dart';
-import '../models/project_config.dart';
+import 'package:archit/utils/fs_utils.dart';
+import 'package:archit/models/project_config.dart';
 
 /// Generates the app entry points (main.dart and app.dart).
 ///

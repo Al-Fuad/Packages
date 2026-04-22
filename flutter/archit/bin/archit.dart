@@ -1,4 +1,4 @@
-import '../lib/commands/cli.dart';
+import 'package:archit/commands/cli.dart';
 
 Future<void> main(List<String> args) async {
   final cli = Cli();

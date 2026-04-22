@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
-import '../models/project_config.dart';
-import '../utils/console.dart';
-import '../utils/fs_utils.dart';
-import '../generators/feature_generator.dart';
+import 'package:archit/models/project_config.dart';
+import 'package:archit/utils/console.dart';
+import 'package:archit/utils/fs_utils.dart';
+import 'package:archit/generators/feature_generator.dart';
 import '../generators/usecase_generator.dart';
 
 /// Command for managing features in a Flutter project.

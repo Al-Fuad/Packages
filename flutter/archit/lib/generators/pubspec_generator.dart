@@ -1,4 +1,4 @@
-import '../models/project_config.dart';
+import 'package:archit/models/project_config.dart';
 
 /// Generates a pubspec.yaml file content.
 ///
