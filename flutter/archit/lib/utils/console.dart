@@ -28,7 +28,7 @@ class Console {
     print(
         '$cyan$bold╔══════════════════════════════════════════════════╗$reset');
     print(
-        '$cyan$bold║            🔨  Archit CLI  v0.0.1                ║$reset');
+        '$cyan$bold║            🔨  Archit CLI  v0.0.4                ║$reset');
     print(
         '$cyan$bold║     Clean Architecture Scaffold Generator        ║$reset');
     print(

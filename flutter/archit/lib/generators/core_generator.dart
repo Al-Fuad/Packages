@@ -494,7 +494,7 @@ extension StringExtension on String {
 }
 
 extension NumberExtension on num {
-  String get toCurrency => NumberFormat.currency(symbol: '\$').format(this);
+  String get toCurrency => NumberFormat.currency(symbol: r'\$').format(this);
   String get toCompact => NumberFormat.compact().format(this);
 }
 ''');

@@ -19,10 +19,8 @@ dart --version
 ## 📦 Installation
 
 ```bash
-# Activate globally from pub.dev
 dart pub global activate archit
 
-# Add Dart's pub cache bin to your PATH (add to ~/.bashrc or ~/.zshrc)
 export PATH="$PATH:$HOME/.pub-cache/bin"
 source ~/.zshrc
 ```

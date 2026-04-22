@@ -56,7 +56,6 @@ class AppGenerator {
 
     FsUtils.writeFile(p.join(libPath, 'main.dart'), '''
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 $imports
 import 'core/di/injection_container.dart' as di;

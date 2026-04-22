@@ -119,7 +119,6 @@ class FeatureManagerCommand {
       Console.printUsecaseList(featureName, usecases);
 
       final options = <String>[
-        ...usecases,
         '➕  Add new usecase',
         '⬅️   Back to features',
       ];
