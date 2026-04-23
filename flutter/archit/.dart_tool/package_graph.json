@@ -8,6 +8,7 @@
       "version": "0.0.4",
       "dependencies": [
         "args",
+        "interact",
         "path",
         "yaml"
       ],
@@ -17,7 +18,7 @@
     },
     {
       "name": "lints",
-      "version": "3.0.0",
+      "version": "6.1.0",
       "dependencies": []
     },
     {
@@ -33,6 +34,15 @@
       "name": "path",
       "version": "1.9.1",
       "dependencies": []
+    },
+    {
+      "name": "interact",
+      "version": "2.2.0",
+      "dependencies": [
+        "dart_console",
+        "meta",
+        "tint"
+      ]
     },
     {
       "name": "args",
@@ -61,8 +71,59 @@
       "dependencies": []
     },
     {
+      "name": "tint",
+      "version": "2.0.1",
+      "dependencies": []
+    },
+    {
+      "name": "meta",
+      "version": "1.18.2",
+      "dependencies": []
+    },
+    {
+      "name": "dart_console",
+      "version": "1.2.0",
+      "dependencies": [
+        "characters",
+        "ffi",
+        "intl",
+        "win32"
+      ]
+    },
+    {
       "name": "term_glyph",
       "version": "1.2.2",
+      "dependencies": []
+    },
+    {
+      "name": "characters",
+      "version": "1.4.1",
+      "dependencies": []
+    },
+    {
+      "name": "intl",
+      "version": "0.18.1",
+      "dependencies": [
+        "clock",
+        "meta",
+        "path"
+      ]
+    },
+    {
+      "name": "win32",
+      "version": "5.15.0",
+      "dependencies": [
+        "ffi"
+      ]
+    },
+    {
+      "name": "ffi",
+      "version": "2.2.0",
+      "dependencies": []
+    },
+    {
+      "name": "clock",
+      "version": "1.1.2",
       "dependencies": []
     }
   ],

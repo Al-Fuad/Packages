@@ -1,6 +1,7 @@
 import 'dart:io';
-import 'package:path/path.dart' as p;
 import 'package:archit/utils/console.dart';
+import 'package:path/path.dart' as p;
+
 import 'package:archit/utils/fs_utils.dart';
 import 'package:archit/models/project_config.dart';
 import 'create_project_command.dart';

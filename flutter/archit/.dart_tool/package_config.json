@@ -8,16 +8,58 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "characters",
+      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/characters-1.4.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "clock",
+      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/clock-1.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "collection",
       "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/collection-1.19.1",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
     {
-      "name": "lints",
-      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/lints-3.0.0",
+      "name": "dart_console",
+      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/dart_console-1.2.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
+    },
+    {
+      "name": "ffi",
+      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/ffi-2.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
+      "name": "interact",
+      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/interact-2.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "intl",
+      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/intl-0.18.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "lints",
+      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/lints-6.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
+    },
+    {
+      "name": "meta",
+      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/meta-1.18.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
     },
     {
       "name": "path",
@@ -42,6 +84,18 @@
       "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/term_glyph-1.2.2",
       "packageUri": "lib/",
       "languageVersion": "3.1"
+    },
+    {
+      "name": "tint",
+      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/tint-2.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "win32",
+      "rootUri": "file:///Users/nur/.pub-cache/hosted/pub.dev/win32-5.15.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
     },
     {
       "name": "yaml",

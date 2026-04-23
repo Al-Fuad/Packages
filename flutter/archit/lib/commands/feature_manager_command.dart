@@ -6,27 +6,105 @@ import 'package:archit/utils/fs_utils.dart';
 import 'package:archit/generators/feature_generator.dart';
 import 'package:archit/generators/usecase_generator.dart';
 
-/// Command for managing features in a Flutter project.
-///
-/// Provides an interactive interface to add features and manage
-/// their usecases within a clean architecture structure.
-class FeatureManagerCommand {
-  /// The path to the Flutter project.
-  final String projectPath;
+// ─────────────────────────────────────────────────────────────
+//  ANSI helpers
+// ─────────────────────────────────────────────────────────────
+const _r  = '\x1B[0m';
+const _b  = '\x1B[1m';
+const _gr = '\x1B[32m';
+const _cy = '\x1B[36m';
+const _gy = '\x1B[90m';
 
-  /// The state management solution used in the project.
+// ─────────────────────────────────────────────────────────────
+//  Arrow-key selector
+//  Counts exact lines printed so redraw is pixel-perfect
+// ─────────────────────────────────────────────────────────────
+int _select(String prompt, List<String> options) {
+  assert(options.isNotEmpty);
+
+  int current = 0;
+
+  // Total lines printed = 1 (prompt) + options.length
+  final totalLines = 1 + options.length;
+
+  void printMenu() {
+    stdout.write('  $_cy$_b$prompt$_r\n');
+    for (int i = 0; i < options.length; i++) {
+      if (i == current) {
+        stdout.write('  $_gr❯$_r $_b${options[i]}$_r\n');
+      } else {
+        stdout.write('  $_gy  ${options[i]}$_r\n');
+      }
+    }
+  }
+
+  void redraw() {
+    // Move cursor up by totalLines, then clear to end of screen
+    stdout.write('\x1B[${totalLines}A\x1B[0J');
+    printMenu();
+  }
+
+  // Initial render — no blank line before, just the menu
+  printMenu();
+
+  stdin.echoMode = false;
+  stdin.lineMode = false;
+
+  try {
+    while (true) {
+      final b0 = stdin.readByteSync();
+
+      if (b0 == 13 || b0 == 10) {
+        // Enter — print one newline to separate from next output
+        stdout.write('\n');
+        break;
+      } else if (b0 == 3) {
+        stdout.write('\n');
+        stdin.echoMode = true;
+        stdin.lineMode = true;
+        exit(0);
+      } else if (b0 == 0x1B) {
+        final b1 = stdin.readByteSync();
+        final b2 = stdin.readByteSync();
+        if (b1 == 0x5B) {
+          if (b2 == 0x41 && current > 0) {
+            current--;
+            redraw();
+          } else if (b2 == 0x42 && current < options.length - 1) {
+            current++;
+            redraw();
+          }
+        }
+      }
+    }
+  } finally {
+    stdin.echoMode = true;
+    stdin.lineMode = true;
+  }
+
+  return current;
+}
+
+String _input(String prompt) {
+  stdout.write('  $_cy\$$_r $_b$prompt$_r $_cy›$_r ');
+  stdin.echoMode = true;
+  stdin.lineMode = true;
+  final val = stdin.readLineSync()?.trim() ?? '';
+  return val;
+}
+
+// ─────────────────────────────────────────────────────────────
+//  FeatureManagerCommand
+// ─────────────────────────────────────────────────────────────
+class FeatureManagerCommand {
+  final String projectPath;
   final StateManagement stateManagement;
 
-  /// Creates a new FeatureManagerCommand.
-  ///
-  /// Requires the [projectPath] to the Flutter project and the
-  /// [stateManagement] strategy being used.
   FeatureManagerCommand({
     required this.projectPath,
     required this.stateManagement,
   });
 
-  /// Returns the path to the features directory.
   String get featuresPath => p.join(projectPath, 'lib', 'features');
 
   List<String> _getFeatures() {
@@ -42,120 +120,92 @@ class FeatureManagerCommand {
   }
 
   List<String> _getUsecases(String featureName) {
-    final usecasesDir =
-        Directory(p.join(featuresPath, featureName, 'domain', 'usecases'));
-    if (!usecasesDir.existsSync()) return [];
-    return usecasesDir
+    final dir = Directory(
+        p.join(featuresPath, featureName, 'domain', 'usecases'));
+    if (!dir.existsSync()) return [];
+    return dir
         .listSync()
         .whereType<File>()
         .map((f) => p.basenameWithoutExtension(f.path))
-        .where((name) => name.endsWith('_usecase'))
-        .map((name) => name.replaceAll('_usecase', ''))
+        .where((n) => n.endsWith('_usecase'))
+        .map((n) => n.replaceAll('_usecase', ''))
         .toList()
       ..sort();
   }
 
-  /// Runs the feature manager interactive loop.
-  ///
-  /// Displays the feature list and allows the user to add new features
-  /// or manage existing ones.
   Future<void> run() async {
     while (true) {
       final features = _getFeatures();
-      Console.printFeatureList(features);
+      Console.printFeatureList(features);   // panel — printed once, stays
 
-      final options = <String>[
-        ...features,
+      final options = [
+        ...features.map((f) => '📁  $f'),
         '➕  Add new feature',
         '🚪  Exit',
       ];
 
-      final idx = Console.selectFromList(
-        '🗂️  Feature Manager — What do you want to do?',
-        options,
-      );
+      final idx = _select('Feature Manager', options);  // menu follows immediately
 
       if (idx == options.length - 1) {
-        // Exit
         Console.info('Goodbye! Happy coding 🚀');
         break;
       } else if (idx == options.length - 2) {
-        // Add new feature
         await _addFeature();
       } else {
-        // Manage existing feature
         await _manageFeature(features[idx]);
       }
     }
   }
 
   Future<void> _addFeature() async {
-    print('');
-    final name = Console.prompt('Enter feature name (e.g. user_profile, auth)');
-    if (name == null || name.isEmpty) {
+    final name = _input('Feature name  (e.g. user_profile, auth)');
+    if (name.isEmpty) {
       Console.error('Feature name cannot be empty.');
       return;
     }
-
-    final featureSnake = FsUtils.toSnakeCaseSafe(name);
-    final featureDir = Directory(p.join(featuresPath, featureSnake));
-
-    if (featureDir.existsSync()) {
-      Console.warning('Feature "$featureSnake" already exists!');
+    final snake = FsUtils.toSnakeCaseSafe(name);
+    if (Directory(p.join(featuresPath, snake)).existsSync()) {
+      Console.warning('Feature "$snake" already exists!');
       return;
     }
-
-    Console.step('Generating feature: $featureSnake...');
-    final generator = FeatureGenerator(projectPath, stateManagement);
-    generator.generateFeature(featureSnake);
-
-    Console.success(
-        'Feature "$featureSnake" created and registered in routes & DI!');
+    Console.step('Generating feature: $snake...');
+    FeatureGenerator(projectPath, stateManagement).generateFeature(snake);
+    Console.success('Feature "$snake" created and registered in routes & DI!');
   }
 
   Future<void> _manageFeature(String featureName) async {
     while (true) {
       final usecases = _getUsecases(featureName);
-      Console.printUsecaseList(featureName, usecases);
+      Console.printUsecaseList(featureName, usecases);  // panel — printed once
 
-      final options = <String>[
+      final options = [
+        ...usecases.map((u) => '🧩  $u'),
         '➕  Add new usecase',
-        '⬅️   Back to features',
+        '⬅️   Back',
       ];
 
-      final idx = Console.selectFromList(
-        '🧩 Feature: $featureName',
-        options,
-      );
+      final idx = _select('Feature: $featureName', options);  // menu follows immediately
 
       if (idx == options.length - 1) {
-        // Back
         break;
       } else if (idx == options.length - 2) {
-        // Add usecase
         await _addUsecase(featureName);
       } else {
-        Console.info('Usecase "${usecases[idx]}" — already generated.');
+        Console.info('Usecase "${usecases[idx]}" is already generated.');
       }
     }
   }
 
   Future<void> _addUsecase(String featureName) async {
-    print('');
-    final name = Console.prompt(
-        'Enter usecase name (e.g. get_user, login, fetch_products)');
-    if (name == null || name.isEmpty) {
+    final name = _input('Usecase name  (e.g. get_user, login, fetch_products)');
+    if (name.isEmpty) {
       Console.error('Usecase name cannot be empty.');
       return;
     }
-
-    final usecaseSnake = FsUtils.toSnakeCaseSafe(name);
-    Console.step('Generating usecase: $usecaseSnake...');
-
-    final generator = UsecaseGenerator(projectPath, stateManagement);
-    generator.generateUsecase(featureName, usecaseSnake);
-
-    Console.success(
-        'UseCase "$usecaseSnake" created and wired to datasource, repository & DI!');
+    final snake = FsUtils.toSnakeCaseSafe(name);
+    Console.step('Generating usecase: $snake...');
+    UsecaseGenerator(projectPath, stateManagement)
+        .generateUsecase(featureName, snake);
+    Console.success('UseCase "$snake" wired to datasource, repository & DI!');
   }
 }

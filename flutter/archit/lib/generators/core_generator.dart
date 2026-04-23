@@ -490,7 +490,7 @@ extension DateTimeExtension on DateTime {
 
 extension StringExtension on String {
   String get capitalize => isEmpty ? '' : this[0].toUpperCase() + substring(1);
-  bool get isValidEmail => RegExp(r\'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$\').hasMatch(this);
+  bool get isValidEmail => RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$").hasMatch(this);
 }
 
 extension NumberExtension on num {

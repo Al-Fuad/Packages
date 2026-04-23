@@ -1,5 +1,10 @@
 # Changelog
 
+
+
+## [0.1.0] - New UI
+- New UI improvements
+
 ## [0.0.3] - Added executables
 - Added `archit` executable for CLI usage
 
