@@ -1,0 +1,19 @@
+import 'package:flutter/material.dart';
+
+class AuthScreen extends StatelessWidget {
+  static const String routeName = '/auth';
+
+  const AuthScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Auth'),
+      ),
+      body: const Center(
+        child: Text('Auth Screen'),
+      ),
+    );
+  }
+}
