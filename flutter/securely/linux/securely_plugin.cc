@@ -53,6 +53,12 @@ static void securely_plugin_handle_method_call(
   } else if (strcmp(method, "isScreenRecordingDetected") == 0) {
     g_autoptr(FlValue) val = fl_value_new_bool(false);
     response = FL_METHOD_RESPONSE(fl_method_success_response_new(val));
+  } else if (strcmp(method, "isDeveloperModeDetected") == 0) {
+    g_autoptr(FlValue) val = fl_value_new_bool(false);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(val));
+  } else if (strcmp(method, "isUsbDebuggingDetected") == 0) {
+    g_autoptr(FlValue) val = fl_value_new_bool(false);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(val));
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
   }

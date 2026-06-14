@@ -143,4 +143,22 @@ class Securely {
     final bool result = await _channel.invokeMethod('isVpnDetected');
     return result;
   }
+
+  /// Detects whether developer mode is enabled on the device.
+  ///
+  /// Returns a [Future] that completes with `true` if developer mode is enabled,
+  /// or `false` otherwise.
+  static Future<bool> isDeveloperModeDetected() async {
+    final bool result = await _channel.invokeMethod('isDeveloperModeDetected');
+    return result;
+  }
+
+  /// Detects whether USB debugging (ADB) is enabled on the device.
+  ///
+  /// Returns a [Future] that completes with `true` if USB debugging is enabled,
+  /// or `false` otherwise.
+  static Future<bool> isUsbDebuggingDetected() async {
+    final bool result = await _channel.invokeMethod('isUsbDebuggingDetected');
+    return result;
+  }
 }

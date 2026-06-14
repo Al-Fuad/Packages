@@ -37,6 +37,10 @@ class SecurelyWeb {
         return _isVpnDetected();
       case 'isScreenRecordingDetected':
         return false;
+      case 'isDeveloperModeDetected':
+        return _isDeveloperModeDetected();
+      case 'isUsbDebuggingDetected':
+        return _isUsbDebuggingDetected();
       default:
         throw MissingPluginException();
     }
@@ -67,6 +71,16 @@ class SecurelyWeb {
 
   bool _isVpnDetected() {
     // VPN detection is not supported/applicable in browser sandbox.
+    return false;
+  }
+
+  bool _isDeveloperModeDetected() {
+    // Developer mode is not applicable in browser sandbox.
+    return false;
+  }
+
+  bool _isUsbDebuggingDetected() {
+    // USB debugging is not applicable in browser sandbox.
     return false;
   }
 }

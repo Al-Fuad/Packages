@@ -33,5 +33,11 @@ void main() {
       expect(result2, isA<bool>());
       expect(result1, equals(result2));
     });
+
+    testWidgets('isEmulatorDetected returns boolean', (WidgetTester tester) async {
+      final bool result = await Securely.isEmulatorDetected();
+      print('isEmulatorDetected result: $result');
+      expect(result, isA<bool>());
+    });
   });
 }

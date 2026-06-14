@@ -101,6 +101,14 @@ class SecurelyPlugin : FlutterPlugin, ActivityAware {
                     result.success(isScreenRecording())
                 }
 
+                "isDeveloperModeDetected" -> {
+                    result.success(isDeveloperModeEnabled())
+                }
+
+                "isUsbDebuggingDetected" -> {
+                    result.success(isUsbDebuggingEnabled())
+                }
+
                 else -> result.notImplemented()
             }
         }
@@ -280,22 +288,38 @@ class SecurelyPlugin : FlutterPlugin, ActivityAware {
     // ================= EMULATOR DETECTION =================
 
     private fun isEmulator(): Boolean {
-        return (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
-                || Build.FINGERPRINT.startsWith("generic")
-                || Build.FINGERPRINT.startsWith("unknown")
-                || Build.HARDWARE.contains("goldfish")
-                || Build.HARDWARE.contains("ranchu")
-                || Build.MODEL.contains("google_sdk")
-                || Build.MODEL.contains("Emulator")
-                || Build.MODEL.contains("Android SDK built for x86")
-                || Build.MANUFACTURER.contains("Genymotion")
-                || Build.PRODUCT.contains("sdk_google")
-                || Build.PRODUCT.contains("google_sdk")
-                || Build.PRODUCT.contains("sdk")
-                || Build.PRODUCT.contains("sdk_x86")
-                || Build.PRODUCT.contains("vbox86p")
-                || Build.PRODUCT.contains("emulator")
-                || Build.PRODUCT.contains("simulator")
+        val brand = Build.BRAND.lowercase()
+        val device = Build.DEVICE.lowercase()
+        val fingerprint = Build.FINGERPRINT.lowercase()
+        val hardware = Build.HARDWARE.lowercase()
+        val model = Build.MODEL.lowercase()
+        val manufacturer = Build.MANUFACTURER.lowercase()
+        val product = Build.PRODUCT.lowercase()
+        val board = Build.BOARD.lowercase()
+        val bootloader = Build.BOOTLOADER.lowercase()
+
+        return (brand.startsWith("generic") && device.startsWith("generic"))
+                || fingerprint.startsWith("generic")
+                || hardware.contains("goldfish")
+                || hardware.contains("ranchu")
+                || model.contains("google_sdk")
+                || model.contains("emulator")
+                || model.contains("android sdk built for x86")
+                || manufacturer.contains("genymotion")
+                || product.contains("sdk_google")
+                || product.contains("google_sdk")
+                || product.startsWith("sdk")
+                || product.contains("sdk_x86")
+                || product.contains("vbox86p")
+                || product.contains("emulator")
+                || product.contains("simulator")
+                || product.contains("gphone")
+                || model.contains("gphone")
+                || device.contains("gphone")
+                || (brand.contains("google") && device.contains("google_sdk"))
+                || board.contains("nox")
+                || hardware.contains("nox")
+                || product.contains("nox")
     }
 
     // ================= ROOT DETECTION =================
@@ -385,5 +409,49 @@ class SecurelyPlugin : FlutterPlugin, ActivityAware {
             // ignore
         }
         return false
+    }
+
+    private fun isDeveloperModeEnabled(): Boolean {
+        val ctx = context ?: return false
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                android.provider.Settings.Global.getInt(
+                    ctx.contentResolver,
+                    android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
+                    0
+                ) != 0
+            } else {
+                @Suppress("DEPRECATION")
+                android.provider.Settings.Secure.getInt(
+                    ctx.contentResolver,
+                    android.provider.Settings.Secure.DEVELOPMENT_SETTINGS_ENABLED,
+                    0
+                ) != 0
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun isUsbDebuggingEnabled(): Boolean {
+        val ctx = context ?: return false
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                android.provider.Settings.Global.getInt(
+                    ctx.contentResolver,
+                    android.provider.Settings.Global.ADB_ENABLED,
+                    0
+                ) != 0
+            } else {
+                @Suppress("DEPRECATION")
+                android.provider.Settings.Secure.getInt(
+                    ctx.contentResolver,
+                    android.provider.Settings.Secure.ADB_ENABLED,
+                    0
+                ) != 0
+            }
+        } catch (e: Exception) {
+            false
+        }
     }
 }

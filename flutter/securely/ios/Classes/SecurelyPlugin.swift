@@ -77,6 +77,12 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
     case "isScreenRecordingDetected":
       result(isScreenRecording())
 
+    case "isDeveloperModeDetected":
+      result(isDeveloperModeEnabled())
+
+    case "isUsbDebuggingDetected":
+      result(false)
+
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -136,7 +142,8 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
     #if targetEnvironment(simulator)
     return true
     #else
-    return false
+    return ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] != nil ||
+           ProcessInfo.processInfo.environment["SIMULATOR_UDID"] != nil
     #endif
   }
 
@@ -238,5 +245,16 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
       }
     }
     return vpnDetected
+  }
+
+  private func isDeveloperModeEnabled() -> Bool {
+    #if targetEnvironment(simulator)
+    return true
+    #else
+    var value = Int32(0)
+    var size = MemoryLayout<Int32>.size
+    let result = sysctlbyname("security.mac.amfi.developer_mode_status", &value, &size, nil, 0)
+    return result == 0 && value == 1
+    #endif
   }
 }

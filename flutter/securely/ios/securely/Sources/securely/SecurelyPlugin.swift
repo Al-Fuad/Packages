@@ -6,6 +6,7 @@ import CFNetwork
 
 
 public class SecurelyPlugin: NSObject, FlutterPlugin {
+  private var channel: FlutterMethodChannel?
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
@@ -13,7 +14,46 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
       binaryMessenger: registrar.messenger()
     )
     let instance = SecurelyPlugin()
+    instance.channel = channel
     registrar.addMethodCallDelegate(instance, channel: channel)
+    instance.startListening()
+  }
+
+  private func startListening() {
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(screenshotTaken),
+      name: UIApplication.userDidTakeScreenshotNotification,
+      object: nil
+    )
+    
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(screenCaptureChanged),
+      name: UIScreen.capturedDidChangeNotification,
+      object: nil
+    )
+  }
+
+  deinit {
+    NotificationCenter.default.removeObserver(self)
+  }
+
+  @objc private func screenshotTaken() {
+    channel?.invokeMethod("onScreenshotTaken", arguments: nil)
+  }
+
+  @objc private func screenCaptureChanged() {
+    channel?.invokeMethod("onScreenRecordingChanged", arguments: isScreenRecording())
+  }
+
+  private func isScreenRecording() -> Bool {
+    for screen in UIScreen.screens {
+      if screen.isCaptured {
+        return true
+      }
+    }
+    return false
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -33,6 +73,15 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
 
     case "isVpnDetected":
       result(isVpnActive())
+
+    case "isScreenRecordingDetected":
+      result(isScreenRecording())
+
+    case "isDeveloperModeDetected":
+      result(isDeveloperModeEnabled())
+
+    case "isUsbDebuggingDetected":
+      result(false)
 
     default:
       result(FlutterMethodNotImplemented)
@@ -93,7 +142,8 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
     #if targetEnvironment(simulator)
     return true
     #else
-    return false
+    return ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] != nil ||
+           ProcessInfo.processInfo.environment["SIMULATOR_UDID"] != nil
     #endif
   }
 
@@ -195,5 +245,16 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
       }
     }
     return vpnDetected
+  }
+
+  private func isDeveloperModeEnabled() -> Bool {
+    #if targetEnvironment(simulator)
+    return true
+    #else
+    var value = Int32(0)
+    var size = MemoryLayout<Int32>.size
+    let result = sysctlbyname("security.mac.amfi.developer_mode_status", &value, &size, nil, 0)
+    return result == 0 && value == 1
+    #endif
   }
 }

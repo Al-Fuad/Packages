@@ -30,6 +30,12 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
     case "isScreenRecordingDetected":
       result(false)
 
+    case "isDeveloperModeDetected":
+      result(false)
+
+    case "isUsbDebuggingDetected":
+      result(false)
+
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -56,9 +62,19 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
 
   // MARK: - Emulator
   private func isEmulatorDetected() -> Bool {
-    // macOS itself isn't an emulator environment. We can detect virtualization via
-    // the hypervisor bit in cpuid, but that's beyond the scope here, so return
-    // false.
+    var size = 0
+    sysctlbyname("hw.model", nil, &size, nil, 0)
+    if size <= 0 { return false }
+    var model = [CChar](repeating: 0, count: size)
+    sysctlbyname("hw.model", &model, &size, nil, 0)
+    let modelString = String(cString: model)
+    
+    let vmIdentifiers = ["VMware", "VirtualBox", "Parallels", "QEMU", "VirtualMac"]
+    for identifier in vmIdentifiers {
+      if modelString.contains(identifier) {
+        return true
+      }
+    }
     return false
   }
 

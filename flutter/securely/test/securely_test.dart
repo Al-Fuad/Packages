@@ -21,6 +21,8 @@ void main() {
               case 'isFridaDetected':
               case 'isVpnDetected':
               case 'isScreenRecordingDetected':
+              case 'isDeveloperModeDetected':
+              case 'isUsbDebuggingDetected':
                 return false;
               default:
                 throw MissingPluginException();
@@ -64,6 +66,16 @@ void main() {
 
     test('isScreenRecordingDetected returns a boolean', () async {
       final bool result = await Securely.isScreenRecordingDetected();
+      expect(result, isA<bool>());
+    });
+
+    test('isDeveloperModeDetected returns a boolean', () async {
+      final bool result = await Securely.isDeveloperModeDetected();
+      expect(result, isA<bool>());
+    });
+
+    test('isUsbDebuggingDetected returns a boolean', () async {
+      final bool result = await Securely.isUsbDebuggingDetected();
       expect(result, isA<bool>());
     });
 

@@ -23,6 +23,8 @@ class _MyAppState extends State<MyApp> {
   bool _isFrida = false;
   bool _isVpn = false;
   bool _isScreenRecording = false;
+  bool _isDeveloperMode = false;
+  bool _isUsbDebugging = false;
 
   late StreamSubscription<void> _screenshotSubscription;
   late StreamSubscription<bool> _screenRecordingSubscription;
@@ -75,6 +77,8 @@ class _MyAppState extends State<MyApp> {
     final frida = await Securely.isFridaDetected();
     final vpn = await Securely.isVpnDetected();
     final recording = await Securely.isScreenRecordingDetected();
+    final developerMode = await Securely.isDeveloperModeDetected();
+    final usbDebugging = await Securely.isUsbDebuggingDetected();
 
     if (mounted) {
       setState(() {
@@ -84,6 +88,8 @@ class _MyAppState extends State<MyApp> {
         _isFrida = frida;
         _isVpn = vpn;
         _isScreenRecording = recording;
+        _isDeveloperMode = developerMode;
+        _isUsbDebugging = usbDebugging;
       });
     }
   }
@@ -114,7 +120,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    bool hasThreat = _isDebugger || _isRoot || _isFrida;
+    bool hasThreat = _isDebugger || _isRoot || _isFrida || _isUsbDebugging;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F1A),
@@ -203,37 +209,65 @@ class _MyAppState extends State<MyApp> {
                     title: 'Debugger',
                     isActive: _isDebugger,
                     icon: Icons.bug_report_rounded,
+                    activeDesc: 'Debugger attached',
+                    cleanDesc: 'No debugger attached',
                     isThreat: true,
                   ),
                   _buildStatusCard(
                     title: 'Jailbreak / Root',
                     isActive: _isRoot,
                     icon: Icons.lock_open_rounded,
+                    activeDesc: 'Device compromised',
+                    cleanDesc: 'Device not rooted',
                     isThreat: true,
                   ),
                   _buildStatusCard(
                     title: 'Frida Framework',
                     isActive: _isFrida,
                     icon: Icons.shield_rounded,
+                    activeDesc: 'Frida framework active',
+                    cleanDesc: 'Frida not detected',
                     isThreat: true,
                   ),
                   _buildStatusCard(
                     title: 'Emulator / Sim',
                     isActive: _isEmulator,
                     icon: Icons.devices_rounded,
+                    activeDesc: 'Running on simulator/emulator',
+                    cleanDesc: 'Running on physical device',
                     isThreat: false,
                   ),
                   _buildStatusCard(
                     title: 'VPN Active',
                     isActive: _isVpn,
                     icon: Icons.vpn_lock_rounded,
+                    activeDesc: 'VPN connection active',
+                    cleanDesc: 'No active VPN connection',
                     isThreat: false,
                   ),
                   _buildStatusCard(
                     title: 'Screen Recording',
                     isActive: _isScreenRecording,
                     icon: Icons.videocam_rounded,
+                    activeDesc: 'Screen capture active',
+                    cleanDesc: 'Screen not being recorded',
                     isThreat: false,
+                  ),
+                  _buildStatusCard(
+                    title: 'Developer Mode',
+                    isActive: _isDeveloperMode,
+                    icon: Icons.developer_mode_rounded,
+                    activeDesc: 'Developer mode enabled',
+                    cleanDesc: 'Developer mode disabled',
+                    isThreat: false,
+                  ),
+                  _buildStatusCard(
+                    title: 'USB Debugging',
+                    isActive: _isUsbDebugging,
+                    icon: Icons.adb_rounded,
+                    activeDesc: 'USB debugging enabled',
+                    cleanDesc: 'USB debugging disabled',
+                    isThreat: true,
                   ),
                 ],
               ),
@@ -266,6 +300,8 @@ class _MyAppState extends State<MyApp> {
     required String title,
     required bool isActive,
     required IconData icon,
+    required String activeDesc,
+    required String cleanDesc,
     required bool isThreat,
   }) {
     Color statusColor;
@@ -324,9 +360,7 @@ class _MyAppState extends State<MyApp> {
               ),
               const SizedBox(height: 4),
               Text(
-                isActive
-                    ? (isThreat ? 'Environment compromised' : 'Feature is active')
-                    : 'Security verified',
+                isActive ? activeDesc : cleanDesc,
                 style: const TextStyle(
                   color: Colors.white38,
                   fontSize: 11,
