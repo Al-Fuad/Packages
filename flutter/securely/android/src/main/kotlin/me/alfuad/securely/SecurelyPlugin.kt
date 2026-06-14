@@ -1,27 +1,80 @@
 package me.alfuad.securely
 
+import android.app.Activity
 import android.content.Context
+import android.database.ContentObserver
+import android.hardware.display.DisplayManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Debug
-import java.io.File
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.provider.MediaStore
+import android.view.Display
+import android.view.WindowManager
+import androidx.annotation.RequiresApi
+import java.io.File
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodChannel
 
-class SecurelyPlugin : FlutterPlugin {
+class SecurelyPlugin : FlutterPlugin, ActivityAware {
 
     private var context: Context? = null
+    private var channel: MethodChannel? = null
+    private var activity: Activity? = null
+
+    // For pre-Android 14 screenshot content observer
+    private var contentObserver: ContentObserver? = null
+
+    // Callbacks for Android 14+ and Android 15+
+    private var screenCaptureCallback: Any? = null
+    private var screenRecordingCallback: Any? = null
+
+    // Display listener for pre-Android 15 screen recording
+    private val displayListener = object : DisplayManager.DisplayListener {
+        override fun onDisplayAdded(displayId: Int) {
+            notifyScreenRecordingState()
+        }
+        override fun onDisplayRemoved(displayId: Int) {
+            notifyScreenRecordingState()
+        }
+        override fun onDisplayChanged(displayId: Int) {
+            notifyScreenRecordingState()
+        }
+    }
+
+    private fun notifyScreenRecordingState() {
+        val isRecording = isScreenRecording()
+        channel?.invokeMethod("onScreenRecordingChanged", isRecording)
+    }
+
+    private fun isScreenRecording(): Boolean {
+        val ctx = context ?: return false
+        val displayManager = ctx.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager ?: return false
+        val displays = displayManager.displays
+        for (display in displays) {
+            if (display.displayId != Display.DEFAULT_DISPLAY) {
+                val flags = display.flags
+                if ((flags and Display.FLAG_PRESENTATION) != 0 || (flags and Display.FLAG_SECURE) == 0) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
-
-        val channel = MethodChannel(
+        channel = MethodChannel(
             binding.binaryMessenger,
             "securely"
         )
 
-        channel.setMethodCallHandler { call, result ->
+        channel?.setMethodCallHandler { call, result ->
             when (call.method) {
 
                 "isDebuggerDetected" -> {
@@ -44,13 +97,132 @@ class SecurelyPlugin : FlutterPlugin {
                     result.success(isVpnActive())
                 }
 
+                "isScreenRecordingDetected" -> {
+                    result.success(isScreenRecording())
+                }
+
                 else -> result.notImplemented()
             }
         }
+
+        // Register display listener
+        val displayManager = context?.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager
+        displayManager?.registerDisplayListener(displayListener, Handler(Looper.getMainLooper()))
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        val displayManager = context?.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager
+        displayManager?.unregisterDisplayListener(displayListener)
+
         context = null
+        channel?.setMethodCallHandler(null)
+        channel = null
+    }
+
+    // ================= ACTIVITY AWARE =================
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        activity = binding.activity
+        registerActivityListeners(binding.activity)
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        activity?.let { unregisterActivityListeners(it) }
+        activity = null
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        activity = binding.activity
+        registerActivityListeners(binding.activity)
+    }
+
+    override fun onDetachedFromActivity() {
+        activity?.let { unregisterActivityListeners(it) }
+        activity = null
+    }
+
+    private fun registerActivityListeners(act: Activity) {
+        // Register Android 14+ screenshot callback
+        if (Build.VERSION.SDK_INT >= 34) {
+            val callback = Activity.ScreenCaptureCallback {
+                channel?.invokeMethod("onScreenshotTaken", null)
+            }
+            screenCaptureCallback = callback
+            act.registerScreenCaptureCallback(act.mainExecutor, callback)
+        } else {
+            // Register ContentObserver for pre-Android 14 screenshot detection
+            registerContentObserver(act)
+        }
+
+        // Register Android 15+ screen recording callback
+        if (Build.VERSION.SDK_INT >= 35) {
+            val callback = java.util.function.Consumer<Int> { state ->
+                val isRecording = state == WindowManager.SCREEN_RECORDING_STATE_VISIBLE
+                channel?.invokeMethod("onScreenRecordingChanged", isRecording)
+            }
+            screenRecordingCallback = callback
+            act.windowManager.addScreenRecordingCallback(act.mainExecutor, callback)
+        }
+    }
+
+    private fun unregisterActivityListeners(act: Activity) {
+        if (Build.VERSION.SDK_INT >= 34 && screenCaptureCallback != null) {
+            val callback = screenCaptureCallback as? Activity.ScreenCaptureCallback
+            if (callback != null) {
+                act.unregisterScreenCaptureCallback(callback)
+            }
+            screenCaptureCallback = null
+        } else {
+            unregisterContentObserver(act)
+        }
+
+        if (Build.VERSION.SDK_INT >= 35 && screenRecordingCallback != null) {
+            val callback = screenRecordingCallback as? java.util.function.Consumer<Int>
+            if (callback != null) {
+                act.windowManager.removeScreenRecordingCallback(callback)
+            }
+            screenRecordingCallback = null
+        }
+    }
+
+    private fun registerContentObserver(ctx: Context) {
+        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean, uri: Uri?) {
+                super.onChange(selfChange, uri)
+                if (uri == null) return
+                try {
+                    val projection = arrayOf(MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA)
+                    ctx.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+                        if (cursor.moveToFirst()) {
+                            val nameIndex = cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME)
+                            val pathIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
+                            val name = if (nameIndex != -1) cursor.getString(nameIndex) else ""
+                            val path = if (pathIndex != -1) cursor.getString(pathIndex) else ""
+                            if (name.lowercase().contains("screenshot") || path.lowercase().contains("screenshot")) {
+                                channel?.invokeMethod("onScreenshotTaken", null)
+                            }
+                        }
+                    }
+                } catch (e: SecurityException) {
+                    // ignore permission issues
+                } catch (e: Exception) {
+                    // ignore other issues
+                }
+            }
+        }
+        contentObserver = observer
+        ctx.contentResolver.registerContentObserver(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            true,
+            observer
+        )
+    }
+
+    private fun unregisterContentObserver(ctx: Context) {
+        contentObserver?.let {
+            ctx.contentResolver.unregisterContentObserver(it)
+            contentObserver = null
+        }
     }
 
     // ================= FRIDA DETECTION =================

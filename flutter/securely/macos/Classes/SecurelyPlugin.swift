@@ -27,6 +27,9 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
     case "isVpnDetected":
       result(isVpnActive())
 
+    case "isScreenRecordingDetected":
+      result(false)
+
     default:
       result(FlutterMethodNotImplemented)
     }

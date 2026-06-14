@@ -167,6 +167,8 @@ void SecurelyPlugin::HandleMethodCall(
     result->Success(flutter::EncodableValue(is_frida_detected()));
   } else if (name == "isVpnDetected") {
     result->Success(flutter::EncodableValue(is_vpn_active()));
+  } else if (name == "isScreenRecordingDetected") {
+    result->Success(flutter::EncodableValue(false));
   } else {
     result->NotImplemented();
   }

@@ -6,6 +6,7 @@ import CFNetwork
 
 
 public class SecurelyPlugin: NSObject, FlutterPlugin {
+  private var channel: FlutterMethodChannel?
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
@@ -13,7 +14,46 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
       binaryMessenger: registrar.messenger()
     )
     let instance = SecurelyPlugin()
+    instance.channel = channel
     registrar.addMethodCallDelegate(instance, channel: channel)
+    instance.startListening()
+  }
+
+  private func startListening() {
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(screenshotTaken),
+      name: UIApplication.userDidTakeScreenshotNotification,
+      object: nil
+    )
+    
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(screenCaptureChanged),
+      name: UIScreen.capturedDidChangeNotification,
+      object: nil
+    )
+  }
+
+  deinit {
+    NotificationCenter.default.removeObserver(self)
+  }
+
+  @objc private func screenshotTaken() {
+    channel?.invokeMethod("onScreenshotTaken", arguments: nil)
+  }
+
+  @objc private func screenCaptureChanged() {
+    channel?.invokeMethod("onScreenRecordingChanged", arguments: isScreenRecording())
+  }
+
+  private func isScreenRecording() -> Bool {
+    for screen in UIScreen.screens {
+      if screen.isCaptured {
+        return true
+      }
+    }
+    return false
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -33,6 +73,9 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
 
     case "isVpnDetected":
       result(isVpnActive())
+
+    case "isScreenRecordingDetected":
+      result(isScreenRecording())
 
     default:
       result(FlutterMethodNotImplemented)

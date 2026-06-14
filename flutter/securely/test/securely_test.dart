@@ -20,6 +20,7 @@ void main() {
               case 'isEmulatorDetected':
               case 'isFridaDetected':
               case 'isVpnDetected':
+              case 'isScreenRecordingDetected':
                 return false;
               default:
                 throw MissingPluginException();
@@ -59,6 +60,19 @@ void main() {
     test('isVpnDetected returns a boolean', () async {
       final bool result = await Securely.isVpnDetected();
       expect(result, isA<bool>());
+    });
+
+    test('isScreenRecordingDetected returns a boolean', () async {
+      final bool result = await Securely.isScreenRecordingDetected();
+      expect(result, isA<bool>());
+    });
+
+    test('onScreenshot is a Stream', () {
+      expect(Securely.onScreenshot, isA<Stream<void>>());
+    });
+
+    test('onScreenRecordingChanged is a Stream', () {
+      expect(Securely.onScreenRecordingChanged, isA<Stream<bool>>());
     });
   });
 }

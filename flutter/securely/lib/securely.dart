@@ -14,6 +14,7 @@
 /// foolproof; advanced adversaries may bypass them.
 library;
 
+import 'dart:async';
 import 'package:flutter/services.dart';
 
 /// The [Securely] class provides a suite of static methods to detect potential
@@ -29,6 +30,47 @@ import 'package:flutter/services.dart';
 /// * [isFridaDetected]
 class Securely {
   static const MethodChannel _channel = MethodChannel('securely');
+
+  static final StreamController<void> _screenshotController = StreamController<void>.broadcast();
+  static final StreamController<bool> _screenRecordingController = StreamController<bool>.broadcast();
+  static bool _initialized = false;
+
+  static void _initialize() {
+    if (_initialized) return;
+    _initialized = true;
+    _channel.setMethodCallHandler((MethodCall call) async {
+      switch (call.method) {
+        case 'onScreenshotTaken':
+          _screenshotController.add(null);
+          break;
+        case 'onScreenRecordingChanged':
+          final bool isRecording = call.arguments as bool;
+          _screenRecordingController.add(isRecording);
+          break;
+      }
+    });
+  }
+
+  /// A stream of screenshot detection events.
+  static Stream<void> get onScreenshot {
+    _initialize();
+    return _screenshotController.stream;
+  }
+
+  /// A stream that emits whether screen recording is active whenever the state changes.
+  static Stream<bool> get onScreenRecordingChanged {
+    _initialize();
+    return _screenRecordingController.stream;
+  }
+
+  /// Detects whether screen recording is currently active.
+  ///
+  /// Returns a [Future] that completes with `true` if screen recording/capture
+  /// is detected, or `false` otherwise.
+  static Future<bool> isScreenRecordingDetected() async {
+    final bool result = await _channel.invokeMethod('isScreenRecordingDetected');
+    return result;
+  }
 
   /// Detects whether a debugger is currently attached to the application.
   ///
@@ -81,6 +123,7 @@ class Securely {
   /// * [isDebuggerDetected]
   /// * [isRootDetected]
   /// * [isEmulatorDetected]
+  ///
   static Future<bool> isFridaDetected() async {
     final bool result = await _channel.invokeMethod('isFridaDetected');
     return result;

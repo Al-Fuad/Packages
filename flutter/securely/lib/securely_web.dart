@@ -35,6 +35,8 @@ class SecurelyWeb {
         return _isFridaDetected();
       case 'isVpnDetected':
         return _isVpnDetected();
+      case 'isScreenRecordingDetected':
+        return false;
       default:
         throw MissingPluginException();
     }
