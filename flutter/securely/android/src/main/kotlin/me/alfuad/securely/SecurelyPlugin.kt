@@ -1,5 +1,8 @@
 package me.alfuad.securely
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Debug
 import java.io.File
 import android.os.Build
@@ -8,7 +11,10 @@ import io.flutter.plugin.common.MethodChannel
 
 class SecurelyPlugin : FlutterPlugin {
 
+    private var context: Context? = null
+
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        context = binding.applicationContext
 
         val channel = MethodChannel(
             binding.binaryMessenger,
@@ -34,12 +40,18 @@ class SecurelyPlugin : FlutterPlugin {
                     result.success(isFridaDetected())
                 }
 
+                "isVpnDetected" -> {
+                    result.success(isVpnActive())
+                }
+
                 else -> result.notImplemented()
             }
         }
     }
 
-    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        context = null
+    }
 
     // ================= FRIDA DETECTION =================
 
@@ -161,5 +173,45 @@ class SecurelyPlugin : FlutterPlugin {
         } catch (e: Exception) {
             ""
         }
+    }
+
+    // ================= VPN DETECTION =================
+
+    private fun isVpnActive(): Boolean {
+        val ctx = context ?: return false
+        val connectivityManager = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return false
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val activeNetwork = connectivityManager.activeNetwork ?: return false
+                val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                    return true
+                }
+            }
+        } catch (e: SecurityException) {
+            // Fallback if permission ACCESS_NETWORK_STATE is missing or denied
+        } catch (e: Exception) {
+            // Fallback for any other unexpected issues
+        }
+        return checkNetworkInterfacesForVpn()
+    }
+
+    private fun checkNetworkInterfacesForVpn(): Boolean {
+        try {
+            val interfaces = java.net.NetworkInterface.getNetworkInterfaces()
+            if (interfaces != null) {
+                for (networkInterface in interfaces) {
+                    if (networkInterface.isUp) {
+                        val name = networkInterface.name.lowercase()
+                        if (name.contains("tun") || name.contains("tap") || name.contains("ppp") || name.contains("wg")) {
+                            return true
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // ignore
+        }
+        return false
     }
 }

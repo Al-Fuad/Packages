@@ -5,6 +5,10 @@
 #include <sys/utsname.h>
 
 #include <cstring>
+#include <ifaddrs.h>
+#include <net/if.h>
+#include <string>
+#include <algorithm>
 
 #include "securely_plugin_private.h"
 
@@ -40,6 +44,10 @@ static void securely_plugin_handle_method_call(
     response = FL_METHOD_RESPONSE(fl_method_success_response_new(val));
   } else if (strcmp(method, "isFridaDetected") == 0) {
     bool detected = is_frida_detected();
+    g_autoptr(FlValue) val = fl_value_new_bool(detected);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(val));
+  } else if (strcmp(method, "isVpnDetected") == 0) {
+    bool detected = is_vpn_active();
     g_autoptr(FlValue) val = fl_value_new_bool(detected);
     response = FL_METHOD_RESPONSE(fl_method_success_response_new(val));
   } else {
@@ -113,6 +121,35 @@ static bool check_frida_maps() {
 
 static bool is_frida_detected() {
   return check_frida_env() || check_frida_maps();
+}
+
+static bool is_vpn_active() {
+  struct ifaddrs* ifaddr = nullptr;
+  if (getifaddrs(&ifaddr) == -1) {
+    return false;
+  }
+
+  bool vpnDetected = false;
+  for (struct ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
+    if (ifa->ifa_addr == nullptr) continue;
+
+    // Check if interface is up
+    if ((ifa->ifa_flags & IFF_UP) == 0) continue;
+
+    std::string name(ifa->ifa_name);
+    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+    if (name.find("tun") != std::string::npos ||
+        name.find("tap") != std::string::npos ||
+        name.find("ppp") != std::string::npos ||
+        name.find("wg") != std::string::npos) {
+      vpnDetected = true;
+      break;
+    }
+  }
+
+  freeifaddrs(ifaddr);
+  return vpnDetected;
 }
 
 

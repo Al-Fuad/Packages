@@ -19,6 +19,7 @@ void main() {
               case 'isRootDetected':
               case 'isEmulatorDetected':
               case 'isFridaDetected':
+              case 'isVpnDetected':
                 return false;
               default:
                 throw MissingPluginException();
@@ -52,6 +53,11 @@ void main() {
 
     test('isFridaDetected returns a boolean', () async {
       final bool result = await Securely.isFridaDetected();
+      expect(result, isA<bool>());
+    });
+
+    test('isVpnDetected returns a boolean', () async {
+      final bool result = await Securely.isVpnDetected();
       expect(result, isA<bool>());
     });
   });

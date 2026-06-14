@@ -2,6 +2,7 @@ import Flutter
 import UIKit
 import Darwin
 import MachO
+import CFNetwork
 
 
 public class SecurelyPlugin: NSObject, FlutterPlugin {
@@ -29,6 +30,9 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
 
     case "isFridaDetected":
       result(isFridaDetected())
+
+    case "isVpnDetected":
+      result(isVpnActive())
 
     default:
       result(FlutterMethodNotImplemented)
@@ -131,5 +135,65 @@ public class SecurelyPlugin: NSObject, FlutterPlugin {
       }
     }
     return false
+  }
+
+  // ================= VPN DETECTION =================
+
+  private func isVpnActive() -> Bool {
+    #if targetEnvironment(simulator)
+    return false
+    #endif
+
+    let vpnProtocolsKeys = ["tap", "tun", "ppp", "ipsec", "utun", "wg"]
+    
+    if let cfDict = CFNetworkCopySystemProxySettings() {
+      let nsDict = cfDict.takeRetainedValue() as NSDictionary
+      if let keys = nsDict["__SCOPED__"] as? NSDictionary {
+        for key in keys.allKeys {
+          if let keyString = key as? String {
+            for protocolKey in vpnProtocolsKeys {
+              if keyString.lowercased().contains(protocolKey) {
+                return true
+              }
+            }
+          }
+        }
+      }
+    }
+    return checkNetworkInterfacesForVpn()
+  }
+
+  private func checkNetworkInterfacesForVpn() -> Bool {
+    var addrList: UnsafeMutablePointer<ifaddrs>? = nil
+    guard getifaddrs(&addrList) == 0, let firstAddr = addrList else {
+      return false
+    }
+    
+    defer {
+      freeifaddrs(addrList)
+    }
+    
+    var vpnDetected = false
+    let vpnKeywords = ["tun", "tap", "ppp", "ipsec", "utun", "wg"]
+    
+    for ptr in sequence(first: firstAddr, next: { $0.pointee.ifa_next }) {
+      let flags = Int32(ptr.pointee.ifa_flags)
+      if (flags & IFF_UP) == 0 {
+        continue
+      }
+      
+      let name = String(cString: ptr.pointee.ifa_name)
+      let nameLower = name.lowercased()
+      for keyword in vpnKeywords {
+        if nameLower.contains(keyword) {
+          vpnDetected = true
+          break
+        }
+      }
+      if vpnDetected {
+        break
+      }
+    }
+    return vpnDetected
   }
 }

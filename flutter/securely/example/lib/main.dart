@@ -90,6 +90,25 @@ class MyApp extends StatelessWidget {
               },
               child: const Text('Check Frida Status'),
             ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                bool vpnDetected = await Securely.isVpnDetected();
+                String message = vpnDetected
+                    ? '❌ VPN connection is detected!'
+                    : '✅ No VPN connection detected.';
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    content: Container(
+                      padding: EdgeInsets.all(10),
+                      child: Text(message),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Check VPN Status'),
+            ),
           ],
         ),
       ),

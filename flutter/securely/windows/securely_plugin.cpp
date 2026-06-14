@@ -2,6 +2,8 @@
 
 // This must be included before many other Windows headers.
 #include <windows.h>
+#include <iphlpapi.h>
+#include <algorithm>
 
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
@@ -95,6 +97,61 @@ static bool is_frida_detected() {
   return check_frida_env() || check_frida_modules();
 }
 
+static bool is_vpn_active() {
+  ULONG outBufLen = 15000;
+  PIP_ADAPTER_ADDRESSES pAddresses = (PIP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+  if (pAddresses == NULL) return false;
+
+  ULONG flags = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER;
+  DWORD dwRetVal = GetAdaptersAddresses(AF_UNSPEC, flags, NULL, pAddresses, &outBufLen);
+  
+  if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
+    free(pAddresses);
+    pAddresses = (PIP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+    if (pAddresses == NULL) return false;
+    dwRetVal = GetAdaptersAddresses(AF_UNSPEC, flags, NULL, pAddresses, &outBufLen);
+  }
+
+  bool vpnDetected = false;
+  if (dwRetVal == NO_ERROR) {
+    PIP_ADAPTER_ADDRESSES pCurrAddresses = pAddresses;
+    while (pCurrAddresses) {
+      if (pCurrAddresses->OperStatus == IfOperStatusUp) {
+        if (pCurrAddresses->IfType == 23) { // IF_TYPE_PPP
+          vpnDetected = true;
+          break;
+        }
+        
+        std::wstring friendlyName(pCurrAddresses->FriendlyName ? pCurrAddresses->FriendlyName : L"");
+        std::wstring description(pCurrAddresses->Description ? pCurrAddresses->Description : L"");
+        
+        std::string name(friendlyName.begin(), friendlyName.end());
+        std::string desc(description.begin(), description.end());
+        
+        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+        std::transform(desc.begin(), desc.end(), desc.begin(), ::tolower);
+        
+        if (name.find("vpn") != std::string::npos ||
+            name.find("tap") != std::string::npos ||
+            name.find("tun") != std::string::npos ||
+            name.find("wg") != std::string::npos ||
+            desc.find("vpn") != std::string::npos ||
+            desc.find("tap") != std::string::npos ||
+            desc.find("tun") != std::string::npos ||
+            desc.find("wg") != std::string::npos ||
+            desc.find("virtual private network") != std::string::npos) {
+          vpnDetected = true;
+          break;
+        }
+      }
+      pCurrAddresses = pCurrAddresses->Next;
+    }
+  }
+  
+  free(pAddresses);
+  return vpnDetected;
+}
+
 void SecurelyPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue> &method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
@@ -108,6 +165,8 @@ void SecurelyPlugin::HandleMethodCall(
     result->Success(flutter::EncodableValue(check_hypervisor_bit()));
   } else if (name == "isFridaDetected") {
     result->Success(flutter::EncodableValue(is_frida_detected()));
+  } else if (name == "isVpnDetected") {
+    result->Success(flutter::EncodableValue(is_vpn_active()));
   } else {
     result->NotImplemented();
   }

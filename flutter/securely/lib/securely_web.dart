@@ -33,6 +33,8 @@ class SecurelyWeb {
         return _isEmulatorDetected();
       case 'isFridaDetected':
         return _isFridaDetected();
+      case 'isVpnDetected':
+        return _isVpnDetected();
       default:
         throw MissingPluginException();
     }
@@ -58,6 +60,11 @@ class SecurelyWeb {
 
   bool _isFridaDetected() {
     // Frida cannot usually attach to web pages; always return false.
+    return false;
+  }
+
+  bool _isVpnDetected() {
+    // VPN detection is not supported/applicable in browser sandbox.
     return false;
   }
 }

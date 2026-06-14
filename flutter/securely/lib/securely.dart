@@ -85,4 +85,19 @@ class Securely {
     final bool result = await _channel.invokeMethod('isFridaDetected');
     return result;
   }
+
+  /// Detects whether the device is connected to a VPN.
+  ///
+  /// Returns a [Future] that completes with `true` if a VPN is detected,
+  /// or `false` otherwise.
+  ///
+  /// Reference Members:
+  /// * [isDebuggerDetected]
+  /// * [isRootDetected]
+  /// * [isEmulatorDetected]
+  /// * [isFridaDetected]
+  static Future<bool> isVpnDetected() async {
+    final bool result = await _channel.invokeMethod('isVpnDetected');
+    return result;
+  }
 }
