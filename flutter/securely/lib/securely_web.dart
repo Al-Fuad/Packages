@@ -6,6 +6,8 @@
 // to the same threats as native platforms.
 
 import 'dart:async';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -41,6 +43,40 @@ class SecurelyWeb {
         return _isDeveloperModeDetected();
       case 'isUsbDebuggingDetected':
         return _isUsbDebuggingDetected();
+      case 'secureStorageWrite':
+        final String key = call.arguments['key'] as String;
+        final String value = call.arguments['value'] as String;
+        final String algo = call.arguments['algorithm'] as String;
+        final String size = call.arguments['keySize'] as String;
+        html.window.localStorage['securely_${key}_${algo}_$size'] = value;
+        return true;
+      case 'secureStorageRead':
+        final String key = call.arguments['key'] as String;
+        final String algo = call.arguments['algorithm'] as String;
+        final String size = call.arguments['keySize'] as String;
+        return html.window.localStorage['securely_${key}_${algo}_$size'];
+      case 'secureStorageDelete':
+        final String key = call.arguments['key'] as String;
+        final String algo = call.arguments['algorithm'] as String;
+        final String size = call.arguments['keySize'] as String;
+        html.window.localStorage.remove('securely_${key}_${algo}_$size');
+        return true;
+      case 'secureStorageContainsKey':
+        final String key = call.arguments['key'] as String;
+        final String algo = call.arguments['algorithm'] as String;
+        final String size = call.arguments['keySize'] as String;
+        return html.window.localStorage.containsKey('securely_${key}_${algo}_$size');
+      case 'secureStorageClear':
+        final keysToRemove = <String>[];
+        html.window.localStorage.forEach((k, v) {
+          if (k.startsWith('securely_')) {
+            keysToRemove.add(k);
+          }
+        });
+        for (final k in keysToRemove) {
+          html.window.localStorage.remove(k);
+        }
+        return true;
       default:
         throw MissingPluginException();
     }

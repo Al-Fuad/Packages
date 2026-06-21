@@ -1,9 +1,13 @@
 #include "securely_plugin.h"
 
-// This must be included before many other Windows headers.
 #include <windows.h>
 #include <iphlpapi.h>
+#include <shlobj.h>
+#include <wincrypt.h>
 #include <algorithm>
+#include <fstream>
+#include <filesystem>
+#include <vector>
 
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
@@ -35,6 +39,136 @@ void SecurelyPlugin::RegisterWithRegistrar(
 SecurelyPlugin::SecurelyPlugin() {}
 
 SecurelyPlugin::~SecurelyPlugin() {}
+
+class WindowsSecureStorage {
+private:
+    static std::string HexEncode(const std::string& input) {
+        static const char hexChars[] = "0123456789abcdef";
+        std::string output;
+        output.reserve(input.length() * 2);
+        for (unsigned char c : input) {
+            output.push_back(hexChars[c >> 4]);
+            output.push_back(hexChars[c & 0x0F]);
+        }
+        return output;
+    }
+
+    static std::filesystem::path GetStorageDirectory() {
+        wchar_t localAppData[MAX_PATH];
+        if (SHGetSpecialFolderPathW(NULL, localAppData, CSIDL_LOCAL_APPDATA, TRUE)) {
+            wchar_t exePath[MAX_PATH];
+            GetModuleFileNameW(NULL, exePath, MAX_PATH);
+            std::wstring exeStr(exePath);
+            size_t lastSlash = exeStr.find_last_of(L"\\/");
+            std::wstring exeName = (lastSlash == std::wstring::npos) ? exeStr : exeStr.substr(lastSlash + 1);
+
+            std::filesystem::path dir = std::filesystem::path(localAppData) / L"securely_storage" / exeName;
+            std::filesystem::create_directories(dir);
+            return dir;
+        }
+        return std::filesystem::path();
+    }
+
+public:
+    static bool Write(const std::string& key, const std::string& value, const std::string& algorithm, const std::string& keySize) {
+        std::filesystem::path dir = GetStorageDirectory();
+        if (dir.empty()) return false;
+
+        DATA_BLOB dataIn;
+        dataIn.pbData = (BYTE*)value.c_str();
+        dataIn.cbData = (DWORD)value.length();
+
+        DATA_BLOB dataOut;
+        if (CryptProtectData(&dataIn, L"securely_key", NULL, NULL, NULL, 0, &dataOut)) {
+            std::string storageKey = key + "_" + algorithm + "_" + keySize;
+            std::string filename = HexEncode(storageKey);
+            std::filesystem::path filepath = dir / filename;
+
+            std::ofstream out(filepath, std::ios::binary);
+            if (out) {
+                out.write((char*)dataOut.pbData, dataOut.cbData);
+                out.close();
+                LocalFree(dataOut.pbData);
+                return true;
+            }
+            LocalFree(dataOut.pbData);
+        }
+        return false;
+    }
+
+    static std::string Read(const std::string& key, const std::string& algorithm, const std::string& keySize, bool& exists) {
+        exists = false;
+        std::filesystem::path dir = GetStorageDirectory();
+        if (dir.empty()) return "";
+
+        std::string storageKey = key + "_" + algorithm + "_" + keySize;
+        std::string filename = HexEncode(storageKey);
+        std::filesystem::path filepath = dir / filename;
+
+        if (!std::filesystem::exists(filepath)) return "";
+        exists = true;
+
+        std::ifstream in(filepath, std::ios::binary | std::ios::ate);
+        if (!in) return "";
+
+        std::streamsize size = in.tellg();
+        in.seekg(0, std::ios::beg);
+
+        std::vector<BYTE> buffer(size);
+        if (in.read((char*)buffer.data(), size)) {
+            DATA_BLOB dataIn;
+            dataIn.pbData = buffer.data();
+            dataIn.cbData = (DWORD)buffer.size();
+
+            DATA_BLOB dataOut;
+            if (CryptUnprotectData(&dataIn, NULL, NULL, NULL, NULL, 0, &dataOut)) {
+                std::string plainText((char*)dataOut.pbData, dataOut.cbData);
+                LocalFree(dataOut.pbData);
+                return plainText;
+            }
+        }
+        return "";
+    }
+
+    static bool Delete(const std::string& key, const std::string& algorithm, const std::string& keySize) {
+        std::filesystem::path dir = GetStorageDirectory();
+        if (dir.empty()) return false;
+
+        std::string storageKey = key + "_" + algorithm + "_" + keySize;
+        std::string filename = HexEncode(storageKey);
+        std::filesystem::path filepath = dir / filename;
+
+        if (std::filesystem::exists(filepath)) {
+            return std::filesystem::remove(filepath);
+        }
+        return true;
+    }
+
+    static bool Contains(const std::string& key, const std::string& algorithm, const std::string& keySize) {
+        std::filesystem::path dir = GetStorageDirectory();
+        if (dir.empty()) return false;
+
+        std::string storageKey = key + "_" + algorithm + "_" + keySize;
+        std::string filename = HexEncode(storageKey);
+        std::filesystem::path filepath = dir / filename;
+
+        return std::filesystem::exists(filepath);
+    }
+
+    static bool Clear() {
+        std::filesystem::path dir = GetStorageDirectory();
+        if (dir.empty()) return false;
+
+        try {
+            for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+                std::filesystem::remove(entry.path());
+            }
+            return true;
+        } catch (...) {
+            return false;
+        }
+    }
+};
 
 // ---------- security helpers ----------
 
@@ -173,6 +307,96 @@ void SecurelyPlugin::HandleMethodCall(
     result->Success(flutter::EncodableValue(false));
   } else if (name == "isUsbDebuggingDetected") {
     result->Success(flutter::EncodableValue(false));
+  } else if (name == "secureStorageWrite") {
+    const auto* arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    if (!arguments) {
+      result->Error("INVALID_ARGUMENTS", "Arguments map is missing");
+      return;
+    }
+    auto key_it = arguments->find(flutter::EncodableValue("key"));
+    auto val_it = arguments->find(flutter::EncodableValue("value"));
+    auto algo_it = arguments->find(flutter::EncodableValue("algorithm"));
+    auto size_it = arguments->find(flutter::EncodableValue("keySize"));
+
+    if (key_it != arguments->end() && val_it != arguments->end()) {
+      std::string key = std::get<std::string>(key_it->second);
+      std::string value = std::get<std::string>(val_it->second);
+      std::string algo = (algo_it != arguments->end()) ? std::get<std::string>(algo_it->second) : "aesGcm";
+      std::string size = (size_it != arguments->end()) ? std::get<std::string>(size_it->second) : "bits256";
+
+      bool success = WindowsSecureStorage::Write(key, value, algo, size);
+      result->Success(flutter::EncodableValue(success));
+    } else {
+      result->Error("INVALID_ARGUMENTS", "Key or value is missing");
+    }
+  } else if (name == "secureStorageRead") {
+    const auto* arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    if (!arguments) {
+      result->Error("INVALID_ARGUMENTS", "Arguments map is missing");
+      return;
+    }
+    auto key_it = arguments->find(flutter::EncodableValue("key"));
+    auto algo_it = arguments->find(flutter::EncodableValue("algorithm"));
+    auto size_it = arguments->find(flutter::EncodableValue("keySize"));
+
+    if (key_it != arguments->end()) {
+      std::string key = std::get<std::string>(key_it->second);
+      std::string algo = (algo_it != arguments->end()) ? std::get<std::string>(algo_it->second) : "aesGcm";
+      std::string size = (size_it != arguments->end()) ? std::get<std::string>(size_it->second) : "bits256";
+
+      bool exists = false;
+      std::string value = WindowsSecureStorage::Read(key, algo, size, exists);
+      if (exists) {
+        result->Success(flutter::EncodableValue(value));
+      } else {
+        result->Success(flutter::EncodableValue());
+      }
+    } else {
+      result->Error("INVALID_ARGUMENTS", "Key is missing");
+    }
+  } else if (name == "secureStorageDelete") {
+    const auto* arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    if (!arguments) {
+      result->Error("INVALID_ARGUMENTS", "Arguments map is missing");
+      return;
+    }
+    auto key_it = arguments->find(flutter::EncodableValue("key"));
+    auto algo_it = arguments->find(flutter::EncodableValue("algorithm"));
+    auto size_it = arguments->find(flutter::EncodableValue("keySize"));
+
+    if (key_it != arguments->end()) {
+      std::string key = std::get<std::string>(key_it->second);
+      std::string algo = (algo_it != arguments->end()) ? std::get<std::string>(algo_it->second) : "aesGcm";
+      std::string size = (size_it != arguments->end()) ? std::get<std::string>(size_it->second) : "bits256";
+
+      bool success = WindowsSecureStorage::Delete(key, algo, size);
+      result->Success(flutter::EncodableValue(success));
+    } else {
+      result->Error("INVALID_ARGUMENTS", "Key is missing");
+    }
+  } else if (name == "secureStorageContainsKey") {
+    const auto* arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    if (!arguments) {
+      result->Error("INVALID_ARGUMENTS", "Arguments map is missing");
+      return;
+    }
+    auto key_it = arguments->find(flutter::EncodableValue("key"));
+    auto algo_it = arguments->find(flutter::EncodableValue("algorithm"));
+    auto size_it = arguments->find(flutter::EncodableValue("keySize"));
+
+    if (key_it != arguments->end()) {
+      std::string key = std::get<std::string>(key_it->second);
+      std::string algo = (algo_it != arguments->end()) ? std::get<std::string>(algo_it->second) : "aesGcm";
+      std::string size = (size_it != arguments->end()) ? std::get<std::string>(size_it->second) : "bits256";
+
+      bool exists = WindowsSecureStorage::Contains(key, algo, size);
+      result->Success(flutter::EncodableValue(exists));
+    } else {
+      result->Error("INVALID_ARGUMENTS", "Key is missing");
+    }
+  } else if (name == "secureStorageClear") {
+    bool success = WindowsSecureStorage::Clear();
+    result->Success(flutter::EncodableValue(success));
   } else {
     result->NotImplemented();
   }

@@ -26,6 +26,7 @@ class SecurelyPlugin : FlutterPlugin, ActivityAware {
     private var context: Context? = null
     private var channel: MethodChannel? = null
     private var activity: Activity? = null
+    private var secureStorageHelper: SecureStorageHelper? = null
 
     // For pre-Android 14 screenshot content observer
     private var contentObserver: ContentObserver? = null
@@ -69,6 +70,7 @@ class SecurelyPlugin : FlutterPlugin, ActivityAware {
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
+        secureStorageHelper = SecureStorageHelper(binding.applicationContext)
         channel = MethodChannel(
             binding.binaryMessenger,
             "securely"
@@ -107,6 +109,60 @@ class SecurelyPlugin : FlutterPlugin, ActivityAware {
 
                 "isUsbDebuggingDetected" -> {
                     result.success(isUsbDebuggingEnabled())
+                }
+
+                "secureStorageWrite" -> {
+                    val key = call.argument<String>("key")
+                    val value = call.argument<String>("value")
+                    val algorithm = call.argument<String>("algorithm") ?: "aesGcm"
+                    val keySize = call.argument<String>("keySize") ?: "bits256"
+                    if (key != null && value != null) {
+                        val success = secureStorageHelper?.write(key, value, algorithm, keySize) ?: false
+                        result.success(success)
+                    } else {
+                        result.error("INVALID_ARGUMENTS", "Key or value is null", null)
+                    }
+                }
+
+                "secureStorageRead" -> {
+                    val key = call.argument<String>("key")
+                    val algorithm = call.argument<String>("algorithm") ?: "aesGcm"
+                    val keySize = call.argument<String>("keySize") ?: "bits256"
+                    if (key != null) {
+                        val value = secureStorageHelper?.read(key, algorithm, keySize)
+                        result.success(value)
+                    } else {
+                        result.error("INVALID_ARGUMENTS", "Key is null", null)
+                    }
+                }
+
+                "secureStorageDelete" -> {
+                    val key = call.argument<String>("key")
+                    val algorithm = call.argument<String>("algorithm") ?: "aesGcm"
+                    val keySize = call.argument<String>("keySize") ?: "bits256"
+                    if (key != null) {
+                        val success = secureStorageHelper?.delete(key, algorithm, keySize) ?: false
+                        result.success(success)
+                    } else {
+                        result.error("INVALID_ARGUMENTS", "Key is null", null)
+                    }
+                }
+
+                "secureStorageContainsKey" -> {
+                    val key = call.argument<String>("key")
+                    val algorithm = call.argument<String>("algorithm") ?: "aesGcm"
+                    val keySize = call.argument<String>("keySize") ?: "bits256"
+                    if (key != null) {
+                        val exists = secureStorageHelper?.contains(key, algorithm, keySize) ?: false
+                        result.success(exists)
+                    } else {
+                        result.error("INVALID_ARGUMENTS", "Key is null", null)
+                    }
+                }
+
+                "secureStorageClear" -> {
+                    val success = secureStorageHelper?.clear() ?: false
+                    result.success(success)
                 }
 
                 else -> result.notImplemented()

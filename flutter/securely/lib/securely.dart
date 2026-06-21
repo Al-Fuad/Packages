@@ -31,8 +31,10 @@ import 'package:flutter/services.dart';
 class Securely {
   static const MethodChannel _channel = MethodChannel('securely');
 
-  static final StreamController<void> _screenshotController = StreamController<void>.broadcast();
-  static final StreamController<bool> _screenRecordingController = StreamController<bool>.broadcast();
+  static final StreamController<void> _screenshotController =
+      StreamController<void>.broadcast();
+  static final StreamController<bool> _screenRecordingController =
+      StreamController<bool>.broadcast();
   static bool _initialized = false;
 
   static void _initialize() {
@@ -68,7 +70,9 @@ class Securely {
   /// Returns a [Future] that completes with `true` if screen recording/capture
   /// is detected, or `false` otherwise.
   static Future<bool> isScreenRecordingDetected() async {
-    final bool result = await _channel.invokeMethod('isScreenRecordingDetected');
+    final bool result = await _channel.invokeMethod(
+      'isScreenRecordingDetected',
+    );
     return result;
   }
 
@@ -160,5 +164,95 @@ class Securely {
   static Future<bool> isUsbDebuggingDetected() async {
     final bool result = await _channel.invokeMethod('isUsbDebuggingDetected');
     return result;
+  }
+}
+
+/// The encryption algorithms supported by [StoreSecurely].
+enum SecurelyAlgorithm {
+  /// Advanced Encryption Standard in Galois/Counter Mode.
+  aesGcm,
+
+  /// Advanced Encryption Standard in Cipher Block Chaining Mode.
+  aesCbc,
+}
+
+/// The encryption key sizes supported by [StoreSecurely].
+enum SecurelyKeySize {
+  /// 128-bit key size.
+  bits128,
+
+  /// 256-bit key size.
+  bits256,
+}
+
+/// A class providing secure key-value storage capabilities using hardware-backed
+/// keystores or native platforms' security frameworks.
+class StoreSecurely {
+  static const MethodChannel _channel = MethodChannel('securely');
+
+  SecurelyAlgorithm _algorithm = SecurelyAlgorithm.aesGcm;
+  SecurelyKeySize _keySize = SecurelyKeySize.bits256;
+
+  /// Creates a new instance of [StoreSecurely].
+  StoreSecurely();
+
+  /// Configures the encryption algorithm for this storage instance.
+  void setAlgorithm(SecurelyAlgorithm algorithm) {
+    _algorithm = algorithm;
+  }
+
+  /// Configures the key size for this storage instance.
+  void setKeySize(SecurelyKeySize keySize) {
+    _keySize = keySize;
+  }
+
+  /// The current encryption algorithm configured for this instance.
+  SecurelyAlgorithm get algorithm => _algorithm;
+
+  /// The current key size configured for this instance.
+  SecurelyKeySize get keySize => _keySize;
+
+  /// Writes a secure string [value] associated with [key].
+  Future<void> write({required String key, required String value}) async {
+    await _channel.invokeMethod('secureStorageWrite', {
+      'key': key,
+      'value': value,
+      'algorithm': _algorithm.name,
+      'keySize': _keySize.name,
+    });
+  }
+
+  /// Reads a secure string associated with [key].
+  ///
+  /// Returns `null` if the key does not exist.
+  Future<String?> read({required String key}) async {
+    return await _channel.invokeMethod<String>('secureStorageRead', {
+      'key': key,
+      'algorithm': _algorithm.name,
+      'keySize': _keySize.name,
+    });
+  }
+
+  /// Deletes the secure key-value pair associated with [key].
+  Future<void> delete({required String key}) async {
+    await _channel.invokeMethod('secureStorageDelete', {
+      'key': key,
+      'algorithm': _algorithm.name,
+      'keySize': _keySize.name,
+    });
+  }
+
+  /// Checks if secure storage contains a value for the specified [key].
+  Future<bool> containsKey({required String key}) async {
+    final bool? result = await _channel.invokeMethod<bool>(
+      'secureStorageContainsKey',
+      {'key': key, 'algorithm': _algorithm.name, 'keySize': _keySize.name},
+    );
+    return result ?? false;
+  }
+
+  /// Clears all secure storage entries saved by this application.
+  Future<void> clear() async {
+    await _channel.invokeMethod('secureStorageClear');
   }
 }
