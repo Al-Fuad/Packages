@@ -17,6 +17,9 @@ library;
 import 'dart:async';
 import 'package:flutter/services.dart';
 
+export 'src/widgets/secure_keyboard.dart';
+export 'src/widgets/secure_text_field.dart';
+
 /// The [Securely] class provides a suite of static methods to detect potential
 /// security risks on the host device.
 ///
