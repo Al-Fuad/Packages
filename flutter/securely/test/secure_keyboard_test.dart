@@ -16,7 +16,9 @@ void main() {
       controller.dispose();
     });
 
-    testWidgets('Renders Numeric Keyboard and inputs digits', (WidgetTester tester) async {
+    testWidgets('Renders Numeric Keyboard and inputs digits', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -58,7 +60,9 @@ void main() {
       expect(controller.text, equals(''));
     });
 
-    testWidgets('Renders Alphanumeric Keyboard and toggles Shift/Symbols', (WidgetTester tester) async {
+    testWidgets('Renders Alphanumeric Keyboard and toggles Shift/Symbols', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -117,7 +121,9 @@ void main() {
       expect(find.text('q'), findsOneWidget);
     });
 
-    testWidgets('SecureKeyboardShuffle.always scrambles layout', (WidgetTester tester) async {
+    testWidgets('SecureKeyboardShuffle.always scrambles layout', (
+      WidgetTester tester,
+    ) async {
       // Create with shuffle always
       await tester.pumpWidget(
         MaterialApp(
@@ -146,7 +152,9 @@ void main() {
       // There's a 90% chance digit positions changed.
     });
 
-    testWidgets('SecureTextField blocks system keyboard', (WidgetTester tester) async {
+    testWidgets('SecureTextField blocks system keyboard', (
+      WidgetTester tester,
+    ) async {
       final FocusNode focusNode = FocusNode();
 
       await tester.pumpWidget(
@@ -171,7 +179,9 @@ void main() {
       expect(textField.enableInteractiveSelection, isFalse);
     });
 
-    testWidgets('Renders header done button and calls onDone', (WidgetTester tester) async {
+    testWidgets('Renders header done button and calls onDone', (
+      WidgetTester tester,
+    ) async {
       bool isDoneCalled = false;
       await tester.pumpWidget(
         MaterialApp(
@@ -192,133 +202,108 @@ void main() {
       expect(isDoneCalled, isTrue);
     });
 
-    testWidgets('SecureTextField can show persistent bottom sheet and closes on done', (WidgetTester tester) async {
-      final FocusNode focusNode = FocusNode();
+    testWidgets(
+      'SecureTextField can show persistent bottom sheet and closes on done',
+      (WidgetTester tester) async {
+        final FocusNode focusNode = FocusNode();
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SecureTextField(
-              controller: controller,
-              focusNode: focusNode,
-              showKeyboardBottomSheet: true,
-              useModalBottomSheet: false, // Persistent bottom sheet
-            ),
-          ),
-        ),
-      );
-
-      // Focus the text field to trigger bottom sheet
-      focusNode.requestFocus();
-      await tester.pumpAndSettle();
-
-      // Verify SecureKeyboard is rendered in the bottom sheet
-      expect(find.byType(SecureKeyboard), findsOneWidget);
-
-      // Verify standard keys are visible (like '1')
-      expect(find.text('1'), findsOneWidget);
-
-      // Tap 'Done' to close bottom sheet
-      await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
-
-      // Verify SecureKeyboard is dismissed
-      expect(find.byType(SecureKeyboard), findsNothing);
-      expect(focusNode.hasFocus, isFalse);
-    });
-
-    testWidgets('SecureTextField with inline keyboard does not lose focus or close on key tap', (WidgetTester tester) async {
-      final FocusNode focusNode = FocusNode();
-      bool isKeyboardVisible = false;
-
-      await tester.pumpWidget(
-        StatefulBuilder(
-          builder: (context, setState) {
-            focusNode.addListener(() {
-              setState(() {
-                isKeyboardVisible = focusNode.hasFocus;
-              });
-            });
-
-            return MaterialApp(
-              home: Scaffold(
-                body: Column(
-                  children: [
-                    SecureTextField(
-                      controller: controller,
-                      focusNode: focusNode,
-                      showKeyboardBottomSheet: false,
-                    ),
-                    if (isKeyboardVisible)
-                      SecureKeyboard(
-                        controller: controller,
-                        type: SecureKeyboardType.numeric,
-                      ),
-                  ],
-                ),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SecureTextField(
+                controller: controller,
+                focusNode: focusNode,
+                showKeyboardBottomSheet: true,
+                useModalBottomSheet: false, // Persistent bottom sheet
               ),
-            );
-          },
-        ),
-      );
-
-      // Focus the field
-      focusNode.requestFocus();
-      await tester.pumpAndSettle();
-
-      expect(isKeyboardVisible, isTrue);
-      expect(find.byType(SecureKeyboard), findsOneWidget);
-
-      // Tap digit '3' on the inline keyboard
-      await tester.tap(find.text('3'));
-      await tester.pumpAndSettle();
-
-      // Focus should NOT be lost, and keyboard should still be visible
-      expect(focusNode.hasFocus, isTrue);
-      expect(isKeyboardVisible, isTrue);
-      expect(controller.text, equals('3'));
-    });
-
-    testWidgets('SecureTextField can show modal bottom sheet and closes on done', (WidgetTester tester) async {
-      final FocusNode focusNode = FocusNode();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SecureTextField(
-              controller: controller,
-              focusNode: focusNode,
-              showKeyboardBottomSheet: true,
-              useModalBottomSheet: true, // Modal bottom sheet
             ),
           ),
-        ),
-      );
+        );
 
-      // Focus the text field to trigger bottom sheet
-      focusNode.requestFocus();
-      await tester.pumpAndSettle();
+        // Focus the text field to trigger bottom sheet
+        focusNode.requestFocus();
+        await tester.pumpAndSettle();
 
-      // Verify SecureKeyboard is rendered in the bottom sheet
-      expect(find.byType(SecureKeyboard), findsOneWidget);
+        // Verify SecureKeyboard is rendered in the bottom sheet
+        expect(find.byType(SecureKeyboard), findsOneWidget);
 
-      // Tap 'Done' to close bottom sheet
-      await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
+        // Verify standard keys are visible (like '1')
+        expect(find.text('1'), findsOneWidget);
 
-      // Verify SecureKeyboard is dismissed
-      expect(find.byType(SecureKeyboard), findsNothing);
-      expect(focusNode.hasFocus, isFalse);
-    });
+        // Tap 'Done' to close bottom sheet
+        await tester.tap(find.text('Done'));
+        await tester.pumpAndSettle();
 
-    testWidgets('SecureTextField modal bottom sheet closes on tap outside (barrier tap)', (WidgetTester tester) async {
-      final FocusNode focusNode = FocusNode();
+        // Verify SecureKeyboard is dismissed
+        expect(find.byType(SecureKeyboard), findsNothing);
+        expect(focusNode.hasFocus, isFalse);
+      },
+    );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: SecureTextField(
+    testWidgets(
+      'SecureTextField with inline keyboard does not lose focus or close on key tap',
+      (WidgetTester tester) async {
+        final FocusNode focusNode = FocusNode();
+        bool isKeyboardVisible = false;
+
+        await tester.pumpWidget(
+          StatefulBuilder(
+            builder: (context, setState) {
+              focusNode.addListener(() {
+                setState(() {
+                  isKeyboardVisible = focusNode.hasFocus;
+                });
+              });
+
+              return MaterialApp(
+                home: Scaffold(
+                  body: Column(
+                    children: [
+                      SecureTextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        showKeyboardBottomSheet: false,
+                      ),
+                      if (isKeyboardVisible)
+                        SecureKeyboard(
+                          controller: controller,
+                          type: SecureKeyboardType.numeric,
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+
+        // Focus the field
+        focusNode.requestFocus();
+        await tester.pumpAndSettle();
+
+        expect(isKeyboardVisible, isTrue);
+        expect(find.byType(SecureKeyboard), findsOneWidget);
+
+        // Tap digit '3' on the inline keyboard
+        await tester.tap(find.text('3'));
+        await tester.pumpAndSettle();
+
+        // Focus should NOT be lost, and keyboard should still be visible
+        expect(focusNode.hasFocus, isTrue);
+        expect(isKeyboardVisible, isTrue);
+        expect(controller.text, equals('3'));
+      },
+    );
+
+    testWidgets(
+      'SecureTextField can show modal bottom sheet and closes on done',
+      (WidgetTester tester) async {
+        final FocusNode focusNode = FocusNode();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SecureTextField(
                 controller: controller,
                 focusNode: focusNode,
                 showKeyboardBottomSheet: true,
@@ -326,57 +311,97 @@ void main() {
               ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Focus the text field to trigger bottom sheet
-      focusNode.requestFocus();
-      await tester.pumpAndSettle();
+        // Focus the text field to trigger bottom sheet
+        focusNode.requestFocus();
+        await tester.pumpAndSettle();
 
-      // Verify SecureKeyboard is rendered in the bottom sheet
-      expect(find.byType(SecureKeyboard), findsOneWidget);
+        // Verify SecureKeyboard is rendered in the bottom sheet
+        expect(find.byType(SecureKeyboard), findsOneWidget);
 
-      // Tap outside the bottom sheet (on the modal barrier).
-      // Tap near top-left of the screen to hit the barrier.
-      await tester.tapAt(const Offset(10, 10));
-      await tester.pumpAndSettle();
+        // Tap 'Done' to close bottom sheet
+        await tester.tap(find.text('Done'));
+        await tester.pumpAndSettle();
 
-      // Verify SecureKeyboard is dismissed
-      expect(find.byType(SecureKeyboard), findsNothing);
-      expect(focusNode.hasFocus, isFalse);
-    });
+        // Verify SecureKeyboard is dismissed
+        expect(find.byType(SecureKeyboard), findsNothing);
+        expect(focusNode.hasFocus, isFalse);
+      },
+    );
 
-    testWidgets('SecureTextField onKeyboardVisible is called when bottom sheet opens/closes', (WidgetTester tester) async {
-      final FocusNode focusNode = FocusNode();
-      final List<bool> visibilityEvents = [];
+    testWidgets(
+      'SecureTextField modal bottom sheet closes on tap outside (barrier tap)',
+      (WidgetTester tester) async {
+        final FocusNode focusNode = FocusNode();
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SecureTextField(
-              controller: controller,
-              focusNode: focusNode,
-              showKeyboardBottomSheet: true,
-              useModalBottomSheet: true,
-              onKeyboardVisible: (visible) {
-                visibilityEvents.add(visible);
-              },
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: SecureTextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  showKeyboardBottomSheet: true,
+                  useModalBottomSheet: true, // Modal bottom sheet
+                ),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Focus the text field to trigger bottom sheet
-      focusNode.requestFocus();
-      await tester.pumpAndSettle();
+        // Focus the text field to trigger bottom sheet
+        focusNode.requestFocus();
+        await tester.pumpAndSettle();
 
-      expect(visibilityEvents, equals([true]));
+        // Verify SecureKeyboard is rendered in the bottom sheet
+        expect(find.byType(SecureKeyboard), findsOneWidget);
 
-      // Tap 'Done' to close bottom sheet
-      await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
+        // Tap outside the bottom sheet (on the modal barrier).
+        // Tap near top-left of the screen to hit the barrier.
+        await tester.tapAt(const Offset(10, 10));
+        await tester.pumpAndSettle();
 
-      expect(visibilityEvents, equals([true, false]));
-    });
+        // Verify SecureKeyboard is dismissed
+        expect(find.byType(SecureKeyboard), findsNothing);
+        expect(focusNode.hasFocus, isFalse);
+      },
+    );
+
+    testWidgets(
+      'SecureTextField onKeyboardVisible is called when bottom sheet opens/closes',
+      (WidgetTester tester) async {
+        final FocusNode focusNode = FocusNode();
+        final List<bool> visibilityEvents = [];
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SecureTextField(
+                controller: controller,
+                focusNode: focusNode,
+                showKeyboardBottomSheet: true,
+                useModalBottomSheet: true,
+                onKeyboardVisible: (visible) {
+                  visibilityEvents.add(visible);
+                },
+              ),
+            ),
+          ),
+        );
+
+        // Focus the text field to trigger bottom sheet
+        focusNode.requestFocus();
+        await tester.pumpAndSettle();
+
+        expect(visibilityEvents, equals([true]));
+
+        // Tap 'Done' to close bottom sheet
+        await tester.tap(find.text('Done'));
+        await tester.pumpAndSettle();
+
+        expect(visibilityEvents, equals([true, false]));
+      },
+    );
   });
 }

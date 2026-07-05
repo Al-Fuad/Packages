@@ -1,89 +1,60 @@
 # Securely
 
-**Securely** is a Flutter plugin that provides a lightweight runtime security framework for
-applications running on Android, iOS, macOS, Linux, Windows and web. Its goal is to help
-developers detect common hostile environments such as attached debuggers, rooted or
-elevated processes, emulators/virtual machines and instrumentation tools like Frida.
+[![Pub Version](https://img.shields.io/pub/v/securely?color=cyan&style=flat-square)](https://pub.dev/packages/securely)
+[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue?style=flat-square)](https://github.com/Al-Fuad/Packages/tree/main/flutter/securely/LICENSE)
+[![Platform Support](https://img.shields.io/badge/platform-android%20%7C%20ios%20%7C%20macos%20%7C%20windows%20%7C%20linux%20%7C%20web-blueviolet?style=flat-square)](https://pub.dev/packages/securely)
 
-All checks are performed on the host platform via native code and exposed to Dart through
-a single `MethodChannel` API.  The library is intentionally simple and extensible; it
-raises the cost of dynamic analysis but is not intended to be a panacea for determined
-attackers.
+**Securely** is a robust, lightweight, cross-platform Runtime Application Self-Protection (RASP) framework for Flutter. It provides hardware-backed storage, deep environment telemetry, and a custom secure in-app input suite designed to shield sensitive data from reverse engineers, debuggers, screen recorders, and physical snoopers.
+
+All native checks execute directly on the host operating systems via lightweight channel calls, raising the bar for reverse engineering and ensuring optimal protection across **Android, iOS, macOS, Windows, Linux, and Web**.
 
 ---
 
-## 🔍 Project Overview
+## 🚀 Key Security Pillars
 
-1. **Runtime threat detection** – no build‑time obfuscation, only live checks.
-2. **Cross‑platform support** – consistent API across mobile and desktop.
-3. **Modular platform-specific implementations** – each platform (including a minimal web stub) implements its own heuristics.
-4. **Tests and example app** – demonstrating usage and verifying channel behavior.
+### 1. 🛡️ Runtime Threat Detection (RASP)
+Perform live environment checks to intercept threats before they compromise your application:
+*   **Debugger Detection:** Identifies attached interactive debugging tools.
+*   **Root & Jailbreak Detection:** Detects compromised OS status (e.g., `su` binaries, Cydia, custom ROM indicators).
+*   **Frida Instrumentation:** Intercepts active hook injections and framework artifacts.
+*   **Emulator & Simulator Isolation:** Determines if execution occurs on non-physical devices.
+*   **Network Safeguards:** Detects active VPN tunnels.
+*   **System Integrity:** Detects developer options and USB debugging (ADB) status.
+*   **Screen-Capture Shielding:** Identifies active screen recording, casting, or sharing.
 
----
+### 2. 💾 Hardware-Backed Secure Storage (`StoreSecurely`)
+A secure, encrypted local key-value store leveraging platform-level keystores (Keychain, Android Keystore, etc.):
+*   Configurable cipher suites: **AES-GCM** or **AES-CBC**.
+*   Flexible key lengths: **128-bit** or **256-bit** encryption keys.
+*   Standard persistence operations: Write, Read, Delete, Check Key, and Clear.
 
-## 🧩 Planned Enhancements
-
-The current release provides individual boolean checks; the next phase will add higher‑level
-features:
-
-### 1. Unified Security Result
-A single method that aggregates all detectors and returns a JSON‑like map:
-
-```json
-{
-  "debugger": false,
-  "rooted": false,
-  "emulator": true,
-  "frida": false
-}
-```
-
-This simplifies usage in applications that need to evaluate multiple signals at once.
-
-### 2. Simple Runtime Response
-A lightweight rule engine that can execute predefined actions when threats are
-observed, for example:
-
-- Terminate the application
-- Disable sensitive SDKs or UI components
-- Emit telemetry/log entries for later analysis
-
-The engine will be configurable from Dart and able to run automatically on startup.
-
-### 3. Secure Storage
-Integrate an encrypted storage facility to protect secret keys or configuration data.
-Features will include:
-
-- AES‑GCM encrypted file store
-- Key derivation and rotation APIs
-- Platform‑specific secure key storage (Keychain, Keystore, DPAPI, etc.)
-
-Other long‑term ideas include advanced Frida/hook detection, memory tampering sensors,
-and a full policy engine with developer‑facing configuration.
+### 3. 🔒 Custom In-App Secure Keyboard Suite
+A complete in-app soft keyboard and text field implementation (`SecureKeyboard` & `SecureTextField`) that **entirely bypasses the native system soft keyboard**, mitigating keylogger exploits and clipboard snooping:
+*   **Keyboard Layouts:** Numeric pinpad (`numeric`) or full QWERTY (`alphanumeric`).
+*   **Key Scrambling (Shuffling):** Randomize layout positions once upon display or dynamically after every single keystroke.
+*   **Screen Share Protections:** 
+    *   `obscureLabels`: Replaces keyboard labels with padlocks (`🔒`) or dots when a screen recording is active.
+    *   `blockKeyboard`: Renders a secure overlay shield over the keyboard, completely preventing user input.
+    *   `obscureOnScreenShare`: Automatically obscures input field characters during screen capture.
+*   **Premium UX & Customization:** Haptic key feedback, fully themeable container/keys/headers, and fluid slide-in bottom sheets.
+*   **Clipboard & Hijack Protection:** Disables context overlay actions (copy/paste/select-all) to secure memory buffers.
 
 ---
 
-## 🏗 Architecture
+## 📊 Platform Support Matrix
 
-```
-Flutter App (Dart)
-│
-├── Securely API (securely.dart)
-├── MethodChannel ("securely")
-│
-└── Native Plugins
-    ├─ Android (Kotlin)
-    │   ├─ debugger
-    │   ├─ root
-    │   ├─ emulator
-    │   └─ frida
-    ├─ iOS / macOS (Swift)
-    ├─ Linux (C++)
-    └─ Windows (C++)
-```
-
-Each native implementation exports the same four methods and may add more helpers
-internally for future features.
+| Detection Feature | Android | iOS | macOS | Windows | Linux | Web |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Debugger Detection** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ *(returns false)* |
+| **Root / Jailbreak** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ *(returns false)* |
+| **Emulator / Simulator** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ *(returns false)* |
+| **Frida Detection** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ *(returns false)* |
+| **VPN Active** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ *(returns false)* |
+| **Developer Mode** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ *(returns false)* |
+| **USB Debugging / ADB** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ *(returns false)* |
+| **Screen Recording** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ *(returns false)* |
+| **Screenshot Events** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Secure Storage** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ *(Web LocalStorage)* |
 
 ---
 
@@ -91,61 +62,275 @@ internally for future features.
 
 ```
 securely/
-├── android/             # Android plugin code & tests
-├── ios/                 # iOS plugin code
-├── macos/               # macOS plugin code
-├── linux/               # Linux plugin code
-├── windows/             # Windows plugin code
-├── lib/securely_web.dart # Web plugin implementation
-├── lib/                 # Dart API (securely.dart)
-├── example/             # Example Flutter application
-├── test/                # Dart unit tests
-├── README.md            # (this file)
-├── pubspec.yaml
-└── ...                 # build tooling, docs, etc.
+├── android/             # Android Kotlin source (Keystore, environment detectors)
+├── ios/                 # iOS Swift source (Keychain, Jailbreak check, recording monitors)
+├── macos/               # macOS Swift source
+├── linux/               # Linux C++ source
+├── windows/             # Windows C++ source
+├── lib/
+│   ├── securely.dart         # Main Dart API interface (RASP & Storage)
+│   ├── securely_web.dart     # Web plugin fallback implementation
+│   └── src/widgets/
+│       ├── secure_keyboard.dart   # Interactive soft keyboard & state logic
+│       └── secure_text_field.dart # Obscured TextField bypassing system keyboard
+├── example/             # Premium multi-screen testbench demo application
+└── test/                # Unit & Widget verification suites
 ```
 
 ---
 
-## 🔧 Usage
+## 🔧 Usage & Integration
 
-Call the exposed static methods from Dart:
+### 1. Environment Telemetry
+Query system state asynchronously from Dart:
 
 ```dart
-bool debug = await Securely.isDebuggerDetected();
-bool root  = await Securely.isRootDetected();
-bool emu   = await Securely.isEmulatorDetected();
-bool frida = await Securely.isFridaDetected();
+import 'package:securely/securely.dart';
+
+void performSecurityChecks() async {
+  bool isDebugger = await Securely.isDebuggerDetected();
+  bool isRooted   = await Securely.isRootDetected();
+  bool isEmulator = await Securely.isEmulatorDetected();
+  bool isFrida    = await Securely.isFridaDetected();
+  bool isVpn      = await Securely.isVpnDetected();
+  bool isDevMode  = await Securely.isDeveloperModeDetected();
+  bool isUsbDebug = await Securely.isUsbDebuggingDetected();
+  bool isRecording = await Securely.isScreenRecordingDetected();
+
+  if (isDebugger || isRooted || isFrida) {
+    // Take immediate defensive action (e.g., exit application, wipe cache)
+  }
+}
 ```
 
-Wrap these in your own security logic or wait for the unified result API when it lands.
+### 2. Real-Time Event Listening
+Register global streams to react to security events immediately:
+
+```dart
+import 'dart:async';
+import 'package:securely/securely.dart';
+
+StreamSubscription<void>? screenshotSub;
+StreamSubscription<bool>? recordingSub;
+
+void initSecurityListeners() {
+  // Listen for screen capture events
+  screenshotSub = Securely.onScreenshot.listen((_) {
+    print("📸 Security Alert: Screenshot captured!");
+  });
+
+  // Listen for real-time screen recording changes
+  recordingSub = Securely.onScreenRecordingChanged.listen((isRecording) {
+    if (isRecording) {
+      print("🎥 Security Alert: Screen recording or casting active!");
+    } else {
+      print("✅ Screen recording stopped.");
+    }
+  });
+}
+
+void disposeSecurityListeners() {
+  screenshotSub?.cancel();
+  recordingSub?.cancel();
+}
+```
+
+### 3. Key-Value Secure Storage
+Construct a hardware-backed cipher storage engine using `StoreSecurely`:
+
+```dart
+import 'package:securely/securely.dart';
+
+final storage = StoreSecurely();
+
+void secureDataOperations() async {
+  // Configure encryption properties (Optional: Defaults to AES-GCM / 256-bit)
+  storage.setAlgorithm(SecurelyAlgorithm.aesGcm);
+  storage.setKeySize(SecurelyKeySize.bits256);
+
+  // Write sensitive key
+  await storage.write(key: 'jwt_token', value: 'eyJhbGciOiJIUzI1NiIsIn...');
+
+  // Check key existence
+  bool hasKey = await storage.containsKey(key: 'jwt_token');
+
+  if (hasKey) {
+    // Read key
+    String? token = await storage.read(key: 'jwt_token');
+    print('Token: $token');
+  }
+
+  // Delete key
+  await storage.delete(key: 'jwt_token');
+
+  // Clear everything
+  await storage.clear();
+}
+```
+
+### 4. Custom Secure Input Widgets
+
+> [!IMPORTANT]
+> To prevent opening the native OS keyboard, `SecureTextField` automatically enforces `readOnly: true` and `showCursor: true`. This allows the text caret to blink naturally while blocking native keystroke interceptors.
+
+#### Basic Usage (Modal Bottom Sheet Drawer)
+By default, focusing `SecureTextField` displays the `SecureKeyboard` within a modal sheet drawer sliding up from the bottom:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:securely/securely.dart';
+
+class PinEntryScreen extends StatefulWidget {
+  const PinEntryScreen({super.key});
+
+  @override
+  State<PinEntryScreen> createState() => _PinEntryScreenState();
+}
+
+class _PinEntryScreenState extends State<PinEntryScreen> {
+  final _pinController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: SecureTextField(
+            controller: _pinController,
+            obscureText: true,
+            keyboardType: SecureKeyboardType.numeric,
+            keyboardShuffleType: SecureKeyboardShuffle.once,
+            keyboardObscureMode: SecureKeyboardObscureMode.blockKeyboard,
+            decoration: const InputDecoration(
+              labelText: 'Transaction PIN',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.dialpad),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+#### Inline (Pinned) Usage
+For custom security screen layouts (e.g., authentication flow PIN pads), you can pin `SecureKeyboard` inline on the page:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:securely/securely.dart';
+
+class InlineKeyboardDemo extends StatefulWidget {
+  const InlineKeyboardDemo({super.key});
+
+  @override
+  State<InlineKeyboardDemo> createState() => _InlineKeyboardDemoState();
+}
+
+class _InlineKeyboardDemoState extends State<InlineKeyboardDemo> {
+  final _controller = TextEditingController();
+  final _focusNode = FocusNode();
+  bool _isKeyboardVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      setState(() {
+        _isKeyboardVisible = _focusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: SecureTextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  showKeyboardBottomSheet: false, // Turn off slide-up sheet
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter Passcode',
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Toggle keyboard layout on focus
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            height: _isKeyboardVisible ? 330.0 : 0.0,
+            child: _isKeyboardVisible
+                ? SecureKeyboard(
+                    controller: _controller,
+                    type: SecureKeyboardType.alphanumeric,
+                    shuffleType: SecureKeyboardShuffle.always, // Scramble after each tap
+                    obscureMode: SecureKeyboardObscureMode.obscureLabels,
+                    onDone: () => _focusNode.unfocus(),
+                  )
+                : const SizedBox(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
 
 ---
 
-## 🎯 Goals & Philosophy
+## 🎨 Theme & Layout Customization
 
-- Provide **runtime protection** for Flutter apps.
-- Increase the **attack cost** for reverse engineers and dynamic analysts.
-- Serve as a **research/educational project** in mobile and desktop application security.
+Modify keyboard visuals completely through `SecureKeyboardTheme`:
+
+```dart
+SecureTextField(
+  controller: _controller,
+  keyboardTheme: SecureKeyboardTheme(
+    backgroundColor: const Color(0xFF10101C),
+    keyBackgroundColor: const Color(0xFF1A1A2B),
+    actionKeyBackgroundColor: const Color(0xFF24243D),
+    textStyle: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
+    actionTextStyle: const TextStyle(fontSize: 15, color: Colors.cyanAccent),
+    keyBorderRadius: 10.0,
+    height: 350.0,
+    headerText: '🛡️ SECURE ENCRYPTED KEYBOARD',
+    showHeader: true,
+  ),
+  // ... configuration options
+)
+```
+
+### Options Breakdown
+
+#### `SecureKeyboardShuffle`
+*   `none`: Keys occupy standard QWERTY / numeric arrangements.
+*   `once`: Layout is randomized when the keyboard is constructed/rendered.
+*   `always`: Layout undergoes a fresh random scramble after every key press.
+
+#### `SecureKeyboardObscureMode`
+*   `none`: Keycaps remain visible during screen sharing.
+*   `obscureLabels`: Native screenshot protection changes keycaps to `🔒` or dots `•` when active.
+*   `blockKeyboard`: Displays a fullscreen warning layout blocker restricting user interaction until sharing halts.
 
 ---
 
-## ⚠️ Limitations
+## ⚠️ Security Warning & Design Philosophy
 
-No detection is bulletproof; motivated adversaries may bypass checks.  Securely is
-meant to be part of a broader defense‑in‑depth strategy.
+No RASP check is entirely bulletproof. Determined adversaries with administrative control (`root`/`jailbreak`) or specialized tool chains (Frida scripts, system Hook frameworks, custom runtime kernels) may bypass individual checks.
 
----
+This plugin is designed to:
+1.  **Elevate the entry barrier** for basic reverse engineering attempts.
+2.  **Hinder automated scanning utilities** and basic debugging configurations.
+3.  **Avert physical snooping** and screen capture attempts.
 
-## 🚀 Future Work
-
-- Unified security result & response engine (see above).
-- Secure encrypted storage with key management.
-- Native C/C++ detectors for lower‑level access.
-- Risk scoring and policy configuration.
-- Integration with CI/CD to alert when new threats are discovered.
-
----
-
-For detailed platform implementation and contribution guidelines, consult the source
-directories and existing code comments.
+Developers should employ a **Defense-in-Depth** model: combine `securely` checks with server-side validation, secure network connections, code obfuscation, and application shielding.

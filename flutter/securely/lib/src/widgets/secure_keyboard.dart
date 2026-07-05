@@ -102,13 +102,12 @@ class SecureKeyboardTheme {
     this.keyBorder,
     this.keyboardBorder,
     this.keyShadow = const [
-      BoxShadow(
-        color: Colors.black26,
-        offset: Offset(0, 2),
-        blurRadius: 4,
-      ),
+      BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 4),
     ],
-    this.keyboardPadding = const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+    this.keyboardPadding = const EdgeInsets.symmetric(
+      horizontal: 8.0,
+      vertical: 12.0,
+    ),
     this.height = 330.0,
     this.headerBackgroundColor,
     this.headerTextStyle = const TextStyle(
@@ -175,15 +174,60 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
 
   // Constants for alphanumeric
   static const List<String> _defaultLetters = [
-    'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
-    'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
-    'z', 'x', 'c', 'v', 'b', 'n', 'm',
+    'q',
+    'w',
+    'e',
+    'r',
+    't',
+    'y',
+    'u',
+    'i',
+    'o',
+    'p',
+    'a',
+    's',
+    'd',
+    'f',
+    'g',
+    'h',
+    'j',
+    'k',
+    'l',
+    'z',
+    'x',
+    'c',
+    'v',
+    'b',
+    'n',
+    'm',
   ];
 
   static const List<String> _symbolsPage1 = [
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-    '-', '/', ':', ';', '(', ')', '\$', '&', '@', '"',
-    '.', ',', '?', '!', '\'',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '0',
+    '-',
+    '/',
+    ':',
+    ';',
+    '(',
+    ')',
+    '\$',
+    '&',
+    '@',
+    '"',
+    '.',
+    ',',
+    '?',
+    '!',
+    '\'',
   ];
 
   @override
@@ -230,7 +274,8 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
   Future<void> _setupScreenRecordingProtection() async {
     try {
       final isEmulator = await Securely.isEmulatorDetected();
-      if (isEmulator) return; // Bypass screen recording blocks on emulators/simulators for testing
+      if (isEmulator)
+        return; // Bypass screen recording blocks on emulators/simulators for testing
     } catch (_) {}
 
     // Initial check
@@ -246,7 +291,9 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
     }
 
     // Real-time stream
-    _screenRecordingSubscription = Securely.onScreenRecordingChanged.listen((recording) {
+    _screenRecordingSubscription = Securely.onScreenRecordingChanged.listen((
+      recording,
+    ) {
       if (mounted) {
         setState(() {
           _isScreenRecording = recording;
@@ -338,9 +385,11 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
   @override
   Widget build(BuildContext context) {
     // Determine screen obscuring state
-    final isBlocked = _isScreenRecording &&
+    final isBlocked =
+        _isScreenRecording &&
         widget.obscureMode == SecureKeyboardObscureMode.blockKeyboard;
-    final isLabelsObscured = _isScreenRecording &&
+    final isLabelsObscured =
+        _isScreenRecording &&
         widget.obscureMode == SecureKeyboardObscureMode.obscureLabels;
 
     return TextFieldTapRegion(
@@ -353,72 +402,69 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
         ),
         padding: widget.theme.keyboardPadding,
         child: Stack(
-        children: [
-          // Keyboard body
-          Positioned.fill(
-            child: Opacity(
-              opacity: isBlocked ? 0.05 : 1.0,
-              child: IgnorePointer(
-                ignoring: isBlocked,
-                child: Column(
-                  children: [
-                    if (widget.theme.showHeader) ...[
-                      _buildHeader(),
-                      const SizedBox(height: 8),
-                    ],
-                    Expanded(
-                      child: widget.type == SecureKeyboardType.numeric
-                          ? _buildNumericKeyboard(isLabelsObscured)
-                          : _buildAlphanumericKeyboard(isLabelsObscured),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Shield Overlay for block mode
-          if (isBlocked)
+          children: [
+            // Keyboard body
             Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: widget.theme.backgroundColor.withOpacity(0.95),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.shield_rounded,
-                      color: Colors.redAccent,
-                      size: 48,
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      'SECURE INPUT BLOCKED',
-                      style: TextStyle(
-                        color: Colors.redAccent,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        letterSpacing: 1.1,
+              child: Opacity(
+                opacity: isBlocked ? 0.05 : 1.0,
+                child: IgnorePointer(
+                  ignoring: isBlocked,
+                  child: Column(
+                    children: [
+                      if (widget.theme.showHeader) ...[
+                        _buildHeader(),
+                        const SizedBox(height: 8),
+                      ],
+                      Expanded(
+                        child: widget.type == SecureKeyboardType.numeric
+                            ? _buildNumericKeyboard(isLabelsObscured)
+                            : _buildAlphanumericKeyboard(isLabelsObscured),
                       ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Screen recording or casting is active.',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-        ],
+            // Shield Overlay for block mode
+            if (isBlocked)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: widget.theme.backgroundColor.withOpacity(0.95),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.shield_rounded,
+                        color: Colors.redAccent,
+                        size: 48,
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        'SECURE INPUT BLOCKED',
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Screen recording or casting is active.',
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   // ================= NUMERIC LAYOUT =================
 
@@ -518,7 +564,9 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
         Expanded(
           child: Row(
             children: r1.map((char) {
-              final formattedChar = _isShiftEnabled ? char.toUpperCase() : char.toLowerCase();
+              final formattedChar = _isShiftEnabled
+                  ? char.toUpperCase()
+                  : char.toLowerCase();
               return Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2.0),
@@ -548,7 +596,9 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Row(
               children: r2.map((char) {
-                final formattedChar = _isShiftEnabled ? char.toUpperCase() : char.toLowerCase();
+                final formattedChar = _isShiftEnabled
+                    ? char.toUpperCase()
+                    : char.toLowerCase();
                 return Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 2.0),
@@ -592,7 +642,9 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
               ),
               const SizedBox(width: 4),
               ...r3.map((char) {
-                final formattedChar = _isShiftEnabled ? char.toUpperCase() : char.toLowerCase();
+                final formattedChar = _isShiftEnabled
+                    ? char.toUpperCase()
+                    : char.toLowerCase();
                 return Expanded(
                   flex: 10,
                   child: Padding(
@@ -816,7 +868,8 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
       height: 40,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: widget.theme.headerBackgroundColor ?? widget.theme.backgroundColor,
+        color:
+            widget.theme.headerBackgroundColor ?? widget.theme.backgroundColor,
         border: const Border(
           bottom: BorderSide(color: Colors.white10, width: 1.0),
         ),
@@ -827,7 +880,11 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
         children: [
           Row(
             children: [
-              const Icon(Icons.lock_outline, size: 14, color: Colors.cyanAccent),
+              const Icon(
+                Icons.lock_outline,
+                size: 14,
+                color: Colors.cyanAccent,
+              ),
               const SizedBox(width: 6),
               Text(
                 widget.theme.headerText,
@@ -867,8 +924,8 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
     final bgColor = isSelected
         ? Colors.cyanAccent.withOpacity(0.2)
         : (isAction
-            ? widget.theme.actionKeyBackgroundColor
-            : widget.theme.keyBackgroundColor);
+              ? widget.theme.actionKeyBackgroundColor
+              : widget.theme.keyBackgroundColor);
 
     final String displayText = obscure ? '🔒' : label;
 
@@ -881,7 +938,9 @@ class _SecureKeyboardState extends State<SecureKeyboard> {
       child: Center(
         child: Text(
           displayText,
-          style: isAction ? widget.theme.actionTextStyle : widget.theme.textStyle,
+          style: isAction
+              ? widget.theme.actionTextStyle
+              : widget.theme.textStyle,
           textAlign: TextAlign.center,
         ),
       ),
@@ -924,9 +983,10 @@ class _SecureKeyButtonState extends State<SecureKeyButton>
       vsync: this,
       duration: const Duration(milliseconds: 60),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.92).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.92,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
   }
 
   @override

@@ -211,7 +211,8 @@ class _SecureTextFieldState extends State<SecureTextField> {
 
     try {
       final isEmulator = await Securely.isEmulatorDetected();
-      if (isEmulator) return; // Bypass screen recording blocks on emulators/simulators for testing
+      if (isEmulator)
+        return; // Bypass screen recording blocks on emulators/simulators for testing
     } catch (_) {}
 
     try {
@@ -220,7 +221,10 @@ class _SecureTextFieldState extends State<SecureTextField> {
         setState(() {
           _isScreenRecording = recording;
         });
-        final shouldBlock = recording && widget.keyboardObscureMode == SecureKeyboardObscureMode.blockKeyboard;
+        final shouldBlock =
+            recording &&
+            widget.keyboardObscureMode ==
+                SecureKeyboardObscureMode.blockKeyboard;
         if (shouldBlock) {
           _closeBottomSheet();
           _focusNode.unfocus();
@@ -228,12 +232,17 @@ class _SecureTextFieldState extends State<SecureTextField> {
       }
     } catch (_) {}
 
-    _screenRecordingSubscription = Securely.onScreenRecordingChanged.listen((recording) {
+    _screenRecordingSubscription = Securely.onScreenRecordingChanged.listen((
+      recording,
+    ) {
       if (mounted) {
         setState(() {
           _isScreenRecording = recording;
         });
-        final shouldBlock = recording && widget.keyboardObscureMode == SecureKeyboardObscureMode.blockKeyboard;
+        final shouldBlock =
+            recording &&
+            widget.keyboardObscureMode ==
+                SecureKeyboardObscureMode.blockKeyboard;
         if (shouldBlock) {
           _closeBottomSheet();
           _focusNode.unfocus();
@@ -413,9 +422,13 @@ class _SecureTextFieldState extends State<SecureTextField> {
   @override
   Widget build(BuildContext context) {
     // If screen share is active and obscureOnScreenShare is true, force obscureText to true
-    final shouldObscure = widget.obscureText || (_isScreenRecording && widget.obscureOnScreenShare);
+    final shouldObscure =
+        widget.obscureText ||
+        (_isScreenRecording && widget.obscureOnScreenShare);
     // Deactivate text field inputs only if keyboardObscureMode is blockKeyboard and screen recording is active
-    final isBlocked = _isScreenRecording && widget.keyboardObscureMode == SecureKeyboardObscureMode.blockKeyboard;
+    final isBlocked =
+        _isScreenRecording &&
+        widget.keyboardObscureMode == SecureKeyboardObscureMode.blockKeyboard;
     final isFieldEnabled = widget.enabled && !isBlocked;
 
     return TextField(
@@ -441,7 +454,9 @@ class _SecureTextFieldState extends State<SecureTextField> {
       onChanged: widget.onChanged,
       onTap: () {
         if (widget.onTap != null) widget.onTap!();
-        if (widget.showKeyboardBottomSheet && !_isBottomSheetOpen && isFieldEnabled) {
+        if (widget.showKeyboardBottomSheet &&
+            !_isBottomSheetOpen &&
+            isFieldEnabled) {
           _showKeyboardBottomSheet();
         }
       },
@@ -458,7 +473,8 @@ class _SecureTextFieldState extends State<SecureTextField> {
       // not open the native system soft keyboard.
       readOnly: true,
       showCursor: true,
-      enableInteractiveSelection: false, // Disables copy, paste, select-all overlay for security
+      enableInteractiveSelection:
+          false, // Disables copy, paste, select-all overlay for security
     );
   }
 }

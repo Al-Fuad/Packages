@@ -20,7 +20,8 @@ class _SecureKeyboardScreenState extends State<SecureKeyboardScreen> {
   // Customization configurations
   SecureKeyboardType _keyboardType = SecureKeyboardType.numeric;
   SecureKeyboardShuffle _shuffleType = SecureKeyboardShuffle.none;
-  SecureKeyboardObscureMode _obscureMode = SecureKeyboardObscureMode.blockKeyboard;
+  SecureKeyboardObscureMode _obscureMode =
+      SecureKeyboardObscureMode.blockKeyboard;
 
   bool _obscureOnScreenShare = true;
   bool _enableHapticFeedback = true;
@@ -71,7 +72,9 @@ class _SecureKeyboardScreenState extends State<SecureKeyboardScreen> {
   }
 
   double get _bottomScrollPadding =>
-      (_bottomSheetFocusNode.hasFocus || _isBottomSheetKeyboardVisible) ? 330.0 : 20.0;
+      (_bottomSheetFocusNode.hasFocus || _isBottomSheetKeyboardVisible)
+      ? 330.0
+      : 20.0;
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +123,13 @@ class _SecureKeyboardScreenState extends State<SecureKeyboardScreen> {
                             label: 'Keyboard Type',
                             value: _keyboardType,
                             items: SecureKeyboardType.values,
-                            displayText: (val) => val == SecureKeyboardType.numeric ? 'Numeric (Pinpad)' : 'Alphanumeric (Full)',
+                            displayText: (val) =>
+                                val == SecureKeyboardType.numeric
+                                ? 'Numeric (Pinpad)'
+                                : 'Alphanumeric (Full)',
                             onChanged: (val) {
-                              if (val != null) setState(() => _keyboardType = val);
+                              if (val != null)
+                                setState(() => _keyboardType = val);
                             },
                           ),
                           const SizedBox(height: 16),
@@ -142,7 +149,8 @@ class _SecureKeyboardScreenState extends State<SecureKeyboardScreen> {
                               }
                             },
                             onChanged: (val) {
-                              if (val != null) setState(() => _shuffleType = val);
+                              if (val != null)
+                                setState(() => _shuffleType = val);
                             },
                           ),
                           const SizedBox(height: 16),
@@ -162,7 +170,8 @@ class _SecureKeyboardScreenState extends State<SecureKeyboardScreen> {
                               }
                             },
                             onChanged: (val) {
-                              if (val != null) setState(() => _obscureMode = val);
+                              if (val != null)
+                                setState(() => _obscureMode = val);
                             },
                           ),
                           const SizedBox(height: 16),
@@ -170,28 +179,67 @@ class _SecureKeyboardScreenState extends State<SecureKeyboardScreen> {
                           const SizedBox(height: 10),
                           // Switches
                           SwitchListTile(
-                            title: const Text('Obscure Text on Screen Share', style: TextStyle(color: Colors.white, fontSize: 14)),
-                            subtitle: const Text('Forces stars/dots when screen is captured', style: TextStyle(color: Colors.white38, fontSize: 11)),
+                            title: const Text(
+                              'Obscure Text on Screen Share',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                            subtitle: const Text(
+                              'Forces stars/dots when screen is captured',
+                              style: TextStyle(
+                                color: Colors.white38,
+                                fontSize: 11,
+                              ),
+                            ),
                             value: _obscureOnScreenShare,
                             activeThumbColor: Colors.cyan,
                             contentPadding: EdgeInsets.zero,
-                            onChanged: (val) => setState(() => _obscureOnScreenShare = val),
+                            onChanged: (val) =>
+                                setState(() => _obscureOnScreenShare = val),
                           ),
                           SwitchListTile(
-                            title: const Text('Haptic Key Feedback', style: TextStyle(color: Colors.white, fontSize: 14)),
-                            subtitle: const Text('Plays light physical vibration on keypress', style: TextStyle(color: Colors.white38, fontSize: 11)),
+                            title: const Text(
+                              'Haptic Key Feedback',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                            subtitle: const Text(
+                              'Plays light physical vibration on keypress',
+                              style: TextStyle(
+                                color: Colors.white38,
+                                fontSize: 11,
+                              ),
+                            ),
                             value: _enableHapticFeedback,
                             activeThumbColor: Colors.cyan,
                             contentPadding: EdgeInsets.zero,
-                            onChanged: (val) => setState(() => _enableHapticFeedback = val),
+                            onChanged: (val) =>
+                                setState(() => _enableHapticFeedback = val),
                           ),
                           SwitchListTile(
-                            title: const Text('Use Modal Bottom Sheet', style: TextStyle(color: Colors.white, fontSize: 14)),
-                            subtitle: const Text('Blocks touch interactions outside the keyboard', style: TextStyle(color: Colors.white38, fontSize: 11)),
+                            title: const Text(
+                              'Use Modal Bottom Sheet',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                            subtitle: const Text(
+                              'Blocks touch interactions outside the keyboard',
+                              style: TextStyle(
+                                color: Colors.white38,
+                                fontSize: 11,
+                              ),
+                            ),
                             value: _useModalBottomSheet,
                             activeThumbColor: Colors.cyan,
                             contentPadding: EdgeInsets.zero,
-                            onChanged: (val) => setState(() => _useModalBottomSheet = val),
+                            onChanged: (val) =>
+                                setState(() => _useModalBottomSheet = val),
                           ),
                         ],
                       ),
@@ -226,12 +274,19 @@ class _SecureKeyboardScreenState extends State<SecureKeyboardScreen> {
                         children: [
                           const Text(
                             '1. Bottom Sheet Mode',
-                            style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold, fontSize: 14),
+                            style: TextStyle(
+                              color: Colors.cyanAccent,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           const Text(
                             'Tapping this field will slide up the secure keyboard in a secure drawer, shielding the native keyboard.',
-                            style: TextStyle(color: Colors.white54, fontSize: 12),
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 12,
+                            ),
                           ),
                           const SizedBox(height: 12),
                           SecureTextField(
@@ -251,48 +306,107 @@ class _SecureKeyboardScreenState extends State<SecureKeyboardScreen> {
                             },
                             decoration: InputDecoration(
                               hintText: 'Enter secure password',
-                              hintStyle: const TextStyle(color: Colors.white24, fontSize: 14),
+                              hintStyle: const TextStyle(
+                                color: Colors.white24,
+                                fontSize: 14,
+                              ),
                               filled: true,
                               fillColor: const Color(0xFF1E1E2E),
-                              prefixIcon: const Icon(Icons.lock_outline, color: Colors.cyan, size: 20),
+                              prefixIcon: const Icon(
+                                Icons.lock_outline,
+                                color: Colors.cyan,
+                                size: 20,
+                              ),
                               isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white10)),
-                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.cyan)),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Colors.white10,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Colors.cyan,
+                                ),
+                              ),
                             ),
-                            style: const TextStyle(color: Colors.white, fontSize: 16),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
                             obscureText: true,
                           ),
                           const SizedBox(height: 24),
                           const Text(
                             '2. Inline (Pinned) Mode',
-                            style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold, fontSize: 14),
+                            style: TextStyle(
+                              color: Colors.cyanAccent,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           const Text(
                             'The keyboard will display inline on the page below the field, perfect for PIN code screens.',
-                            style: TextStyle(color: Colors.white54, fontSize: 12),
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 12,
+                            ),
                           ),
                           const SizedBox(height: 12),
                           SecureTextField(
                             controller: _inlineController,
                             focusNode: _inlineFocusNode,
-                            showKeyboardBottomSheet: false, // Turn off auto bottom sheet
+                            showKeyboardBottomSheet:
+                                false, // Turn off auto bottom sheet
                             obscureOnScreenShare: _obscureOnScreenShare,
                             decoration: InputDecoration(
                               hintText: 'Enter transaction PIN',
-                              hintStyle: const TextStyle(color: Colors.white24, fontSize: 14),
+                              hintStyle: const TextStyle(
+                                color: Colors.white24,
+                                fontSize: 14,
+                              ),
                               filled: true,
                               fillColor: const Color(0xFF1E1E2E),
-                              prefixIcon: const Icon(Icons.dialpad, color: Colors.cyan, size: 20),
+                              prefixIcon: const Icon(
+                                Icons.dialpad,
+                                color: Colors.cyan,
+                                size: 20,
+                              ),
                               isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white10)),
-                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.cyan)),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Colors.white10,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Colors.cyan,
+                                ),
+                              ),
                             ),
-                            style: const TextStyle(color: Colors.white, fontSize: 16, letterSpacing: 3.0),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              letterSpacing: 3.0,
+                            ),
                             obscureText: true,
                           ),
                           const SizedBox(height: 10),
@@ -344,7 +458,11 @@ class _SecureKeyboardScreenState extends State<SecureKeyboardScreen> {
       children: [
         Text(
           label.toUpperCase(),
-          style: const TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white38,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 6),
         Container(

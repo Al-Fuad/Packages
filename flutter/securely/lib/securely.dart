@@ -259,3 +259,4 @@ class StoreSecurely {
     await _channel.invokeMethod('secureStorageClear');
   }
 }
+
