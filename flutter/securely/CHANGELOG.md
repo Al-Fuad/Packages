@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on **Keep a Changelog**,  
 and this project follows **Semantic Versioning**.
 
+## [1.1.0] - RASP Framework & Input Suite
+
+### Added
+- **Secure Storage (`StoreSecurely`)**:
+  - Encrypted key-value storage backed by native hardware-backed keystores (Android Keystore / iOS & macOS Keychain).
+  - Configurable encryption algorithms (`SecurelyAlgorithm` - AES-GCM, AES-CBC) and key sizes (`SecurelyKeySize` - 128-bit, 256-bit).
+- **Secure Keyboard Suite (`SecureKeyboard`, `SecureTextField`)**:
+  - Custom randomized soft keyboard (`SecureKeyboard`) to prevent keylogger interception.
+  - Multiple layout types (numeric, alphanumeric) and key shuffling behaviors (none, once, always).
+  - Built-in screen-share obscuring and blocking modes (`SecureKeyboardObscureMode`).
+  - Full theme configuration options (`SecureKeyboardTheme`).
+- **Enhanced Threat Detection & Real-time Monitoring**:
+  - VPN connectivity detection via `isVpnDetected()`.
+  - Developer Mode and USB debugging (ADB) detection via `isDeveloperModeDetected()` and `isUsbDebuggingDetected()`.
+  - Screenshot monitoring stream (`onScreenshot`) to catch screen capture events.
+  - Screen recording detection via `isScreenRecordingDetected()` and active recording state changes stream (`onScreenRecordingChanged`).
+
+---
+
 ## [0.2.3] - Change homepage URL to repo URL
 
 ### Changed
